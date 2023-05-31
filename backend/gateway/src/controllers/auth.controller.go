@@ -10,10 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthControllers struct {
-}
+type AuthController struct {}
 
-func (*AuthControllers) Login(c *gin.Context) {
+func (*AuthController) Login(c *gin.Context) {
 	var request models.LoginJson
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -28,7 +27,7 @@ func (*AuthControllers) Login(c *gin.Context) {
 	utils.SendJson(c, http.StatusOK, resp)
 }
 
-func (*AuthControllers) Signup(c *gin.Context) {
+func (*AuthController) Signup(c *gin.Context) {
 	var request models.SignupJson
 	err := c.ShouldBindJSON(&request)
 	if err != nil {

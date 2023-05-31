@@ -69,7 +69,6 @@ type PostsServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*Post, error)
 	GetPost(context.Context, *GetPostRequest) (*Post, error)
 	GetAllPosts(context.Context, *EmptyRequest) (*GetAllPostsResponse, error)
-	mustEmbedUnimplementedPostsServiceServer()
 }
 
 // UnimplementedPostsServiceServer must be embedded to have forward compatible implementations.
