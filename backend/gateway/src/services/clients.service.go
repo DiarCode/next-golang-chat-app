@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	authpb "github.com/DiarCode/next-golang-chat-app/gateway/src/gen/auth"
+	chatpb "github.com/DiarCode/next-golang-chat-app/gateway/src/gen/chat"
 	postspb "github.com/DiarCode/next-golang-chat-app/gateway/src/gen/posts"
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/utils"
 	"google.golang.org/grpc"
@@ -13,6 +14,7 @@ import (
 type ClientsType struct {
 	Auth  authpb.AuthServiceClient
 	Posts postspb.PostsServiceClient
+	Chat  chatpb.ChatServiceClient
 }
 
 var Clients *ClientsType
@@ -20,15 +22,18 @@ var Clients *ClientsType
 const (
 	authPort  = 50051
 	postsPort = 50052
+	chatPort  = 50053
 )
 
 func InitServiceClients() *ClientsType {
 	authClient := getAuthClient()
 	postsClient := getPostsClient()
+	chatClient := getChatClient()
 
 	clients := &ClientsType{
 		Auth:  authClient,
 		Posts: postsClient,
+		Chat: chatClient,
 	}
 
 	return clients
@@ -52,4 +57,14 @@ func getPostsClient() postspb.PostsServiceClient {
 	}
 
 	return postspb.NewPostsServiceClient(conn)
+}
+
+func getChatClient() chatpb.ChatServiceClient {
+	uri := fmt.Sprintf("localhost:%v", chatPort)
+	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		utils.LoggerFatalf("Failed to connect to Posts client: %v", err)
+	}
+
+	return chatpb.NewChatServiceClient(conn)
 }

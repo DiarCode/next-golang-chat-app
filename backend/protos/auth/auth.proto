@@ -4,7 +4,6 @@ package users;
 
 option go_package = "./gen/auth";
 
-
 service AuthService {
     rpc Login(LoginRequest) returns (AuthResponse);
     rpc Signup(SignupRequest) returns (AuthResponse);
