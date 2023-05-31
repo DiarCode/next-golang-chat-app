@@ -58,7 +58,6 @@ func (c *authServiceClient) Signup(ctx context.Context, in *SignupRequest, opts 
 type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*AuthResponse, error)
 	Signup(context.Context, *SignupRequest) (*AuthResponse, error)
-	mustEmbedUnimplementedAuthServiceServer()
 }
 
 // UnimplementedAuthServiceServer must be embedded to have forward compatible implementations.
