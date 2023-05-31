@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "./gen/auth";
+
+
+service AuthService {
+    rpc Login(LoginRequest) returns (AuthResponse);
+    rpc Signup(SignupRequest) returns (AuthResponse);
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message SignupRequest {
+    string username = 1;
+    string email = 3;
+    string password = 4;
+}
+
+message AuthResponse {
+    int64 id = 1;
+    string username = 2;
+    string email = 3;
+    string token = 4;
+}
