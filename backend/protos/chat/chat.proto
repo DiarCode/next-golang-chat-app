@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "./gen/chat";
+
+
+service ChatService {
+    rpc GetAllRooms(Empty) returns (GetAllRoomsResponse);
+    rpc CreateRoom(CreateRoomRequest) returns (Room);
+    rpc JoinRoom(JoinRoomRequest) returns (stream ChatMessage);
+    rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+message Room {
+    int64 id = 1;
+    string name = 2;
+}
+
+message GetAllRoomsResponse {
+    repeated Room rooms = 1; 
+}
+
+message CreateRoomRequest {
+  string name = 1;
+}
+
+message JoinRoomRequest {
+  string id = 1;
+}
+
+message ChatMessage {
+  string room_id = 1;
+  string user_id = 2;
+  string content = 3;
+}
+
+message SendMessageRequest {
+  string room_id = 1;
+  string user_id = 2;
+  string content = 3;
+}
+
+message SendMessageResponse {
+  bool success = 1;
+}
+
+message Empty{}
