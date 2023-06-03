@@ -1,6 +1,6 @@
 import { Navbar } from "@/widgets/navbar";
 import Head from "next/head";
-import { CSSProperties, FC, PropsWithChildren } from "react";
+import { CSSProperties, FC, PropsWithChildren, useEffect } from "react";
 
 interface AppLayoutProps extends PropsWithChildren {
   title: string;
@@ -20,6 +20,10 @@ export const AppLayout: FC<AppLayoutProps> = ({
   style,
   showNavbar = true,
 }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="bg-white">
       <Head>
