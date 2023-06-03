@@ -8,9 +8,11 @@ import { PageTitle } from "@/shared/ui/title";
 import { Button } from "@/shared/ui/button";
 import { CreatePostModal } from "../components/create-post-modal";
 import { CreatePostModalContext } from "../context/create-post-modal.context";
+import { usePosts } from "@/shared/hooks/usePosts";
 
 export const BlogScreen = () => {
   const { setVisible } = useContext(CreatePostModalContext);
+  const { data } = usePosts();
 
   return (
     <AppLayout title="Blog">
@@ -23,7 +25,7 @@ export const BlogScreen = () => {
               <p>Write</p>
             </Button>
           </div>
-          <BlogsList blogs={blogs} />
+          <BlogsList blogs={data?.data || blogs} />
         </div>
 
         <div className="hidden md:block border-l col-span-1 h-full pl-7">

@@ -1,3 +1,4 @@
+import { usePost } from "@/shared/hooks/usePosts";
 import { AppLayout } from "@/shared/layouts/app-layout";
 import { blogs } from "@/shared/mocks/blogs";
 import { useRouter } from "next/router";
@@ -8,8 +9,10 @@ export const BlogExcerptScreen = () => {
   const router = useRouter();
   const { id } = router.query;
 
+  const { data } = usePost(Number(id));
+
   // TODO: fetch post by id and get title
-  const blog = blogs[0];
+  const blog = data?.data ?? blogs[0];
 
   const title = blog.title;
 
@@ -24,7 +27,9 @@ export const BlogExcerptScreen = () => {
       </button>
 
       <div className="mt-6">
-        <h1 className="max-w-2xl text-xl md:text-2xl font-bold">{blog.title}</h1>
+        <h1 className="max-w-2xl text-xl md:text-2xl font-bold">
+          {blog.title}
+        </h1>
         <p className="text-sm md:text-base mt-3">{blog.body}</p>
       </div>
 

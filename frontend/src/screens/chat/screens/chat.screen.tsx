@@ -6,11 +6,11 @@ import { Plus } from "react-feather";
 import { ChatsList } from "../components/chats-list";
 import { chats } from "@/shared/mocks/chats";
 import { CreateChatModal } from "../components/create-chat-modal";
-import {
-  CreateChatModalContext,
-} from "../context/create-chat-modal.context";
+import { CreateChatModalContext } from "../context/create-chat-modal.context";
+import { useChats } from "@/shared/hooks/useChat";
 
 export const ChatScreen = () => {
+  const { data } = useChats();
   const { setVisible } = useContext(CreateChatModalContext);
 
   return (
@@ -29,7 +29,7 @@ export const ChatScreen = () => {
       </div>
 
       <div className="mt-6">
-        <ChatsList chats={chats} />
+        <ChatsList chats={data?.data ?? chats} />
       </div>
 
       <CreateChatModal />

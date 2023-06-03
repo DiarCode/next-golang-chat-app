@@ -1,5 +1,4 @@
 import { AppLayout } from "@/shared/layouts/app-layout";
-import { Button } from "@/shared/ui/button";
 import { PageTitle } from "@/shared/ui/title";
 import React from "react";
 import { SidebarChatDetails } from "../components/sidebar-chat-details";
@@ -9,10 +8,14 @@ import { ChevronLeft } from "react-feather";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { PAGES_LINKS } from "@/shared/config/links.config";
+import { useChat } from "@/shared/hooks/useChat";
 
 export const ChatExcerptScreen = () => {
-  // TODO: Fetch cuurent chat
-  const chat = chats[0];
+  const router = useRouter();
+  const { id } = router.query;
+
+  const { data } = useChat(Number(id));
+  const chat = data?.data ?? chats[0];
 
   return (
     <AppLayout title={chat.name}>
