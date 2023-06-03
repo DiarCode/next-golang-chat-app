@@ -7,7 +7,7 @@ export const ChatInput = () => {
       <div className="h-full flex items-center gap-x-3 ">
         <input
           type="text"
-          className="h-full w-full rounded-md border border-gray-300 p-3"
+          className="h-full w-full focus:outline-none  rounded-md border border-gray-300 p-3"
           placeholder="Type message..."
         />
 
