@@ -4,10 +4,3 @@ export interface User {
   email: string;
   password: string;
 }
-
-export interface AuthState {
-  id: number;
-  token: string;
-  username: string;
-  email: string;
-}

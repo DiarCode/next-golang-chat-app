@@ -4,6 +4,7 @@ import { Button } from "@/shared/ui/button";
 import { InputField } from "@/shared/ui/input";
 import Link from "next/link";
 import React from "react";
+import { LoginForm } from "./components/login-form";
 
 export const LoginScreen = () => {
   return (
@@ -16,23 +17,7 @@ export const LoginScreen = () => {
           <p className="mt-2 text-gray-500">Please enter your details.</p>
         </div>
 
-        <div className="mt-8 md:mt-12 flex flex-col gap-y-4">
-          <InputField
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-          />
-
-          <InputField
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <Button style={{ marginTop: 34 }} solid>
-          Login
-        </Button>
+        <LoginForm />
 
         <div className="flex justify-center items-center gap-x-2 text-sm mt-8 md:mt-12">
           <p>Do not have an account?</p>
