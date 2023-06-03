@@ -28,7 +28,7 @@ export const Modal: FC<IModalProps> = ({
       {visible && (
         <div
           onClick={() => setVisibleState(false)}
-          className="fixed inset-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 max-h-full bg-black/90 flex items-center justify-center"
+          className="fixed inset-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 max-h-full bg-slate-900/90 flex items-center justify-center"
         >
           <div
             className="relative inset-0 h-fit w-full max-w-2xl bg-white rounded-xl p-6"

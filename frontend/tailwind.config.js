@@ -7,6 +7,7 @@ module.exports = {
         black: "#272343",
         white: "#FBFBFB",
         primary: "#395AFF",
+        primary_light: "#455dd6",
 
         gradient_start: "#12c2e9",
         gradient_center: "#c471ed",
