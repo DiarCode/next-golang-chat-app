@@ -1,6 +1,6 @@
 import { Button } from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { CreateChatModalContext } from "../context/create-chat-modal.context";
 
 export const CreateChatModal = () => {
@@ -13,7 +13,7 @@ export const CreateChatModal = () => {
       <div className="mt-4">
         <input
           type="text"
-          className=" w-full h-28 p-4 text-4xl font-semibold bg-transparent focus:outline-none border-b-2"
+          className=" w-full h-28 p-0 text-3xl md:text-4xl font-semibold bg-transparent focus:outline-none border-b-2"
           placeholder="Enter chat name"
         />
       </div>

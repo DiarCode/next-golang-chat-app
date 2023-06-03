@@ -18,7 +18,7 @@ export const ProfileNavigation = () => {
       <button onClick={() => setOpen(!open)}>
         <div className="flex items-center gap-x-2">
           <User size={18} />
-          <p>{auth?.username}</p>
+          <p className="font-medium text-sm md:text-base">{auth?.username}</p>
         </div>
       </button>
 

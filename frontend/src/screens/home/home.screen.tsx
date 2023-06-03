@@ -8,7 +8,7 @@ import { PAGES_LINKS } from "@/shared/config/links.config";
 export const HomeScreen = () => {
   return (
     <AppLayout title="Home">
-      <div className="flex flex-col justify-center items-center mt-32">
+      <div className="flex flex-col justify-center items-center mt-16 md:mt-32">
         <p className="text-base tracking-wide font-semibold text-slate-500">
           Welcome, buddy!
         </p>

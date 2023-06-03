@@ -24,8 +24,8 @@ export const BlogExcerptScreen = () => {
       </button>
 
       <div className="mt-6">
-        <h1 className="max-w-2xl  text-2xl font-bold">{blog.title}</h1>
-        <p className="text-base mt-3">{blog.body}</p>
+        <h1 className="max-w-2xl text-xl md:text-2xl font-bold">{blog.title}</h1>
+        <p className="text-sm md:text-base mt-3">{blog.body}</p>
       </div>
 
       <div className="flex items-center gap-x-3 mt-6">

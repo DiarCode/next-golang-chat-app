@@ -15,7 +15,7 @@ export const BlogScreen = () => {
   return (
     <AppLayout title="Blog">
       <main className="grid grid-cols-3">
-        <div className="col-span-3 md:col-span-2 h-full pr-7">
+        <div className="col-span-3 md:col-span-2 h-full md:pr-7">
           <div className="flex justify-between items-center mb-10">
             <PageTitle content="Blog" />
             <Button style={{ gap: 12 }} onClick={() => setVisible(true)}>

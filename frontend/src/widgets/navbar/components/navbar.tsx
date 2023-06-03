@@ -9,7 +9,7 @@ export const Navbar = () => {
       <Logo />
 
       {/* Appear on mobile screen */}
-      <section className="sm:hidden flex items-center gap-x-3">
+      <section className="sm:hidden flex items-center gap-x-4">
         <AuthNavigation />
         <MobileNavigation />
       </section>

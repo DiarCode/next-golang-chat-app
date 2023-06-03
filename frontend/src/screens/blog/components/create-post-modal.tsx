@@ -12,7 +12,7 @@ export const CreatePostModal = () => {
 
       <div className="mt-4">
         <div className="mt-6">
-          <p className="font-semibold px-4 mb-2">Title</p>
+          <p className="font-semibold mb-2">Title</p>
           <input
             className="w-full p-3 text-base font-semibold bg-transparent focus:outline-none border-2 rounded-md"
             placeholder="Enter title"
@@ -20,7 +20,7 @@ export const CreatePostModal = () => {
         </div>
 
         <div className="mt-6">
-          <p className="font-semibold px-4 mb-2">Content</p>
+          <p className="font-semibold mb-2">Content</p>
           <textarea
             className="w-full h-32 p-3 text-base font-semibold bg-transparent focus:outline-none border-2 rounded-md"
             placeholder="Write post content"
