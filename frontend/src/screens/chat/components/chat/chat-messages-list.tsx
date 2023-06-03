@@ -1,8 +1,4 @@
-import React, {
-  MutableRefObject,
-  useEffect,
-  useRef,
-} from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import { ChatMessage } from "./chat-message";
 
 export const ChatMessagesList = () => {
@@ -19,28 +15,30 @@ export const ChatMessagesList = () => {
   }, []);
 
   return (
-    <div className="bg-slate-200 overflow-y-auto h-[65vh] rounded-xl border-2 p-4 relative">
-      <ChatMessage messageFromType="sender" />
-      <ChatMessage messageFromType="sender" />
+    <div className="bg-slate-200 overflow-y-auto h-[55vh] md:h-[65vh] rounded-xl border-2 p-4 relative">
+      <div className="flex flex-col">
+        <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
 
-      <ChatMessage messageFromType="me" />
+        <ChatMessage messageFromType="me" />
 
-      <ChatMessage messageFromType="sender" />
-      <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
 
-      <ChatMessage messageFromType="me" />
-      <ChatMessage messageFromType="sender" />
-      <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="me" />
+        <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
 
-      <ChatMessage messageFromType="me" />
-      <ChatMessage messageFromType="sender" />
-      <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="me" />
+        <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
 
-      <ChatMessage messageFromType="me" />
-      <ChatMessage messageFromType="sender" />
-      <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="me" />
+        <ChatMessage messageFromType="sender" />
+        <ChatMessage messageFromType="sender" />
 
-      <ChatMessage messageFromType="me" />
+        <ChatMessage messageFromType="me" />
+      </div>
 
       <div ref={messagesEndRef} />
     </div>
