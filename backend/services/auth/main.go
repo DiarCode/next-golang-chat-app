@@ -28,7 +28,7 @@ func main() {
 		JWT_KEY:     "SSH256KEY",
 		DB_USER:     "postgres",
 		DB_PASSWORD: "postgres",
-		DB_NAME:     "kezek_auth",
+		DB_NAME:     "meowchat_auth",
 		DB_PORT:     "5432",
 		DB_HOST:     "localhost",
 	}

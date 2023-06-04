@@ -29,7 +29,7 @@ export const ChatScreen = () => {
       </div>
 
       <div className="mt-6">
-        <ChatsList chats={data?.data ?? chats} />
+        <ChatsList chats={data?.data ?? []} />
       </div>
 
       <CreateChatModal />
