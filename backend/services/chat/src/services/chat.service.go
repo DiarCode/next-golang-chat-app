@@ -3,7 +3,10 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
 
+	"github.com/DiarCode/next-golang-chat-app/chat/src/database"
 	chatpb "github.com/DiarCode/next-golang-chat-app/chat/src/gen/chat"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/utils"
 	"github.com/streadway/amqp"
@@ -17,18 +20,59 @@ func NewChatServiceServer(conn *amqp.Connection) *ChatService {
 	return &ChatService{conn: conn}
 }
 
+func (s *ChatService) GetMessagesByRoomId(ctx context.Context, req *chatpb.GetMessagesByRoomIdRequest) (*chatpb.GetMessagesByRoomIdResponse, error) {
+	var messages []*chatpb.ChatMessage
+
+	queryResult := database.DB.Where("room_id = ?", req.RoomId).Find(&messages)
+
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return &chatpb.GetMessagesByRoomIdResponse{
+		Messages: messages,
+	}, nil
+}
+
 func (s *ChatService) GetAllRooms(ctx context.Context, req *chatpb.Empty) (*chatpb.GetAllRoomsResponse, error) {
-	return nil, nil
+	var rooms []*chatpb.Room
+	res := database.DB.Find(&rooms)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	response := &chatpb.GetAllRoomsResponse{
+		Rooms: rooms,
+	}
+
+	return response, nil
+}
+
+func (s *ChatService) GetRoomById(ctx context.Context, req *chatpb.GetRoomByIdRequest) (*chatpb.Room, error) {
+	var room chatpb.Room
+
+	res := database.DB.First(&room, req.Id)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &room, nil
 }
 
 func (s *ChatService) CreateRoom(ctx context.Context, req *chatpb.CreateRoomRequest) (*chatpb.Room, error) {
-	// Logic to create a new chat room
-	// ...
+	room := chatpb.Room{
+		Name: req.Name,
+	}
 
-	roomID := 32
-	roomName := "Name"
+	result := database.DB.Create(&room)
 
-	return &chatpb.Room{Id: int64(roomID), Name: roomName}, nil
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &chatpb.Room{Id: room.Id, Name: room.Name}, nil
 }
 
 func (s *ChatService) JoinRoom(req *chatpb.JoinRoomRequest, stream chatpb.ChatService_JoinRoomServer) error {
@@ -74,10 +118,13 @@ func (s *ChatService) JoinRoom(req *chatpb.JoinRoomRequest, stream chatpb.ChatSe
 			continue
 		}
 
+		fmt.Println("Sending message ", chatMsg)
 		err = stream.Send(&chatMsg)
 		if err != nil {
 			utils.LoggerInfof("Failed to send message to client:", err)
 		}
+
+		msg.Ack(true)
 	}
 
 	return nil
@@ -96,7 +143,7 @@ func (s *ChatService) SendMessage(ctx context.Context, req *chatpb.SendMessageRe
 	defer ch.Close()
 
 	queue, err := ch.QueueDeclare(
-		roomID, // Queue name is the room ID
+		strconv.FormatInt(int64(roomID), 10),
 		false,
 		false,
 		false,
@@ -107,13 +154,20 @@ func (s *ChatService) SendMessage(ctx context.Context, req *chatpb.SendMessageRe
 		return nil, err
 	}
 
-	chatMsg := &chatpb.ChatMessage{
+	chatMsg := chatpb.ChatMessage{
 		RoomId:  roomID,
 		UserId:  userID,
 		Content: content,
 	}
 
-	body, err := json.Marshal(chatMsg)
+	// Create message in db]
+	fmt.Println("RECCEEIEV MESSAGE", chatMsg)
+	dbQueryResult := database.DB.Create(&chatMsg)
+	if dbQueryResult.Error != nil {
+		return nil, dbQueryResult.Error
+	}
+
+	body, err := json.Marshal(&chatMsg)
 	if err != nil {
 		return nil, err
 	}

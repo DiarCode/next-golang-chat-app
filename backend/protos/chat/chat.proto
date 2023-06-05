@@ -1,12 +1,14 @@
 syntax = "proto3";
 
-package chat;
+package chatpb;
 
 option go_package = "./gen/chat";
 
 
 service ChatService {
     rpc GetAllRooms(Empty) returns (GetAllRoomsResponse);
+    rpc GetRoomById(GetRoomByIdRequest) returns (Room);
+    rpc GetMessagesByRoomId(GetMessagesByRoomIdRequest) returns (GetMessagesByRoomIdResponse);
     rpc CreateRoom(CreateRoomRequest) returns (Room);
     rpc JoinRoom(JoinRoomRequest) returns (stream ChatMessage);
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
@@ -17,6 +19,10 @@ message Room {
     string name = 2;
 }
 
+message GetRoomByIdRequest {
+  int64 id = 1;
+}
+
 message GetAllRoomsResponse {
     repeated Room rooms = 1; 
 }
@@ -25,19 +31,28 @@ message CreateRoomRequest {
   string name = 1;
 }
 
+message GetMessagesByRoomIdRequest {
+  int64 roomId = 1;
+}
+
+message GetMessagesByRoomIdResponse {
+  repeated ChatMessage messages = 1;
+}
+
 message JoinRoomRequest {
   string id = 1;
 }
 
 message ChatMessage {
-  string room_id = 1;
-  string user_id = 2;
+  int64 roomId = 1;
+  int64 userId = 2;
   string content = 3;
+  int64 id = 4;
 }
 
 message SendMessageRequest {
-  string room_id = 1;
-  string user_id = 2;
+  int64 roomId = 1;
+  int64 userId = 2;
   string content = 3;
 }
 

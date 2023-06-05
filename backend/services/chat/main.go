@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/DiarCode/next-golang-chat-app/chat/src/config"
+	"github.com/DiarCode/next-golang-chat-app/chat/src/database"
 	chatpb "github.com/DiarCode/next-golang-chat-app/chat/src/gen/chat"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/services"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/utils"
@@ -28,7 +29,7 @@ func main() {
 		JWT_KEY:     "SSH256KEY",
 		DB_USER:     "postgres",
 		DB_PASSWORD: "postgres",
-		DB_NAME:     "kezek_auth",
+		DB_NAME:     "meowchat_chat",
 		DB_PORT:     "5432",
 		DB_HOST:     "localhost",
 	}
@@ -45,7 +46,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	// database.ConnectDB()
+	database.ConnectDB()
 
 	server := grpc.NewServer()
 	chatpb.RegisterChatServiceServer(server, services.NewChatServiceServer(conn))

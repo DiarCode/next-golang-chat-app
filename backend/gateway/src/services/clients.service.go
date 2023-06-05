@@ -33,7 +33,7 @@ func InitServiceClients() *ClientsType {
 	clients := &ClientsType{
 		Auth:  authClient,
 		Posts: postsClient,
-		Chat: chatClient,
+		Chat:  chatClient,
 	}
 
 	return clients
