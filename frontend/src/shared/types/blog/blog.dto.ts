@@ -3,3 +3,8 @@ export interface CreatePostDto {
   body: string;
   authorId: number;
 }
+
+export interface CreatePostForm {
+  title: string;
+  body: string;
+}
