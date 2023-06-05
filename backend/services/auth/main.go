@@ -7,6 +7,7 @@ import (
 	"github.com/DiarCode/next-golang-chat-app/auth/src/config"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/database"
 	authpb "github.com/DiarCode/next-golang-chat-app/auth/src/gen/auth"
+	userspb "github.com/DiarCode/next-golang-chat-app/auth/src/gen/users"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/services"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/utils"
 	"google.golang.org/grpc"
@@ -28,7 +29,7 @@ func main() {
 		JWT_KEY:     "SSH256KEY",
 		DB_USER:     "postgres",
 		DB_PASSWORD: "postgres",
-		DB_NAME:     "kezek_auth",
+		DB_NAME:     "meowchat_auth",
 		DB_PORT:     "5432",
 		DB_HOST:     "localhost",
 	}
@@ -37,6 +38,7 @@ func main() {
 
 	server := grpc.NewServer()
 	authpb.RegisterAuthServiceServer(server, &services.AuthService{})
+	userspb.RegisterUserServiceServer(server, &services.UserService{})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.AppConfig.APP_PORT))
 	if err != nil {

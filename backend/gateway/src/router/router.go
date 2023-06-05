@@ -2,35 +2,55 @@ package router
 
 import (
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/controllers"
+	"github.com/DiarCode/next-golang-chat-app/gateway/src/middlewares"
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type RouterControllersType struct {
-	Auth *controllers.AuthControllers
+	Auth  *controllers.AuthController
+	Posts *controllers.PostsController
+	Chat  *controllers.ChatController
 }
 
 var Controllers *RouterControllersType
 
 func NewRouter() *gin.Engine {
 	Controllers := &RouterControllersType{
-		Auth: &controllers.AuthControllers{},
+		Auth:  &controllers.AuthController{},
+		Posts: &controllers.PostsController{},
+		Chat:  &controllers.ChatController{},
 	}
 
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middlewares.CORSMiddleware())
 
 	api := r.Group("/api/v1")
+
+	// Home
+	r.GET("/", func(c *gin.Context) {
+		utils.SendJson(c, 200, "Welcome to Meowchat API!")
+	})
 
 	// Auth
 	api.POST("/auth/login", Controllers.Auth.Login)
 	api.POST("/auth/signup", Controllers.Auth.Signup)
+	api.GET("/users/:id", Controllers.Auth.GetUserById)
 
-	api.GET("/", func(c *gin.Context) {
-		utils.LoggerInfo("Entered into home page")
-		utils.SendJson(c, 200, "Hello World")
-	})
+	// Posts
+	api.POST("/posts", Controllers.Posts.CreatePost)
+	api.GET("/posts", Controllers.Posts.GetAllPosts)
+	api.GET("/posts/:id", Controllers.Posts.GetPost)
+
+	// Chat
+	api.GET("/chat/rooms/:id/ws", Controllers.Chat.ChatWebSocket)
+	api.GET("/chat/rooms/:id", Controllers.Chat.GetRoomById)
+	api.POST("/chat/rooms/send", Controllers.Chat.SendMessage)
+	api.GET("/chat/rooms", Controllers.Chat.GetAllRooms)
+	api.POST("/chat/rooms", Controllers.Chat.CreateRoom)
+	api.GET("/chat/rooms/:id/messages", Controllers.Chat.GetAllMessagesByRoom)
 
 	return r
 }

@@ -1,19 +1,26 @@
 package services
 
 import (
+	"context"
+
 	"github.com/DiarCode/next-golang-chat-app/auth/src/database"
+	userspb "github.com/DiarCode/next-golang-chat-app/auth/src/gen/users"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/models"
-	"gorm.io/gorm"
 )
 
-func CreateUser(user *models.User) *gorm.DB {
-	return database.DB.Create(&user)
-}
+type UserService struct{}
 
-func DeleteUser(user *models.User) *gorm.DB {
-	return database.DB.Delete(&user)
-}
+func (*UserService) GetUserById(ctx context.Context, req *userspb.GetUserByIdRequest) (*userspb.User, error) {
+	var user models.User
+	res := database.DB.First(&user, req.Id)
 
-func GetUser(user *models.User, conds ...interface{}) *gorm.DB {
-	return database.DB.Delete(&user, &conds)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &userspb.User{
+		Id:       user.Id,
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
 }
