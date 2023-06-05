@@ -18,36 +18,6 @@ export const ChatExcerptScreen = () => {
 
   const { chat: data } = useChat(Number(id));
 
-  // useEffect(() => {
-  //   if (!id) return;
-
-  //   const client = ChatApiService.getChatRoomWebSocketClient(Number(id));
-
-  //   client.onopen = () => {
-  //     console.log("WebSocket connection established");
-  //     setSocket(client);
-  //   };
-
-  //   client.onmessage = message => {
-  //     // Handle incoming messages
-  //     const newMessage = message.data;
-  //     console.log(newMessage);
-  //   };
-
-  //   client.onclose = event => {
-  //     console.log("WebSocket connection closed");
-  //     setSocket(null);
-  //   };
-
-  //   return () => {
-  //     // Close the WebSocket connection when the component unmounts
-  //     if (client) {
-  //       client.close();
-  //       setSocket(null);
-  //     }
-  //   };
-  // }, [id]);
-
   const chat = data ?? chats[0];
 
   return (
