@@ -13,10 +13,6 @@ export const BlogItem: FC<BlogItemProps> = ({ blog }) => {
   const blogLink = PAGES_LINKS.Blog.subs.BlogExcerpt.link(blog.id);
   const { data: author } = useUser(blog.authorId);
 
-  let date = new Date();
-  date.setTime(blog.createdAt);
-  console.log(date);
-
   return (
     <div>
       <div>
@@ -37,7 +33,7 @@ export const BlogItem: FC<BlogItemProps> = ({ blog }) => {
           {author?.data.username}
         </p>
         <p className="text-xs md:text-sm text-gray-500">
-          {formatDateFromUnix(blog.createdAt, "DD MMM, YYYY")}
+          {formatDateFromUnix(blog.publishedAt, "DD MMM, YYYY")}
         </p>
       </div>
     </div>
