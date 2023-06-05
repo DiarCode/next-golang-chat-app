@@ -3,5 +3,5 @@ export interface ChatMessage {
   content: string;
   userId: number;
   roomId: number;
-  sendedAt: Date;
+  sendedAt: number;
 }

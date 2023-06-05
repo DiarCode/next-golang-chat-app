@@ -4,9 +4,7 @@ import { useContext, useEffect } from "react";
 import { ChatContext } from "@/screens/chat/context/chat.context";
 import { ChatMessage } from "../types/chat/message.type";
 import { useAuth } from "./useAuth";
-import { Chat } from "../types/chat/chat.type";
 import { SendMessageDto } from "../types/chat/message.dto";
-import { getApiUrl } from "../api/api";
 
 export const useChats = () =>
   useQuery({ queryKey: ["chats"], queryFn: ChatApiService.getAllChatRooms });
@@ -28,7 +26,7 @@ export const useChat = (id?: number) => {
   });
 
   useEffect(() => {
-    console.log("MEEESAGES", messagesResponse.data?.data);
+    console.log("Messages:", messagesResponse.data?.data);
     if (!chatContext.chat) {
       chatContext.setChat(roomResponse.data?.data ?? null);
       chatContext.setMessages(messagesResponse.data?.data ?? []);
@@ -49,9 +47,9 @@ export const useChat = (id?: number) => {
     };
 
     client.onmessage = message => {
-      const newMessage = message.data;
-      console.log(newMessage);
-      chatContext.pushMessage(newMessage);
+      const newMessageStr = message.data;
+      const newMessageObj = JSON.parse(newMessageStr) as ChatMessage;
+      chatContext.pushMessage(newMessageObj);
     };
 
     client.onclose = () => {

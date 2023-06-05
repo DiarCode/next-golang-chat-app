@@ -7,6 +7,7 @@ import (
 	"github.com/DiarCode/next-golang-chat-app/auth/src/config"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/database"
 	authpb "github.com/DiarCode/next-golang-chat-app/auth/src/gen/auth"
+	userspb "github.com/DiarCode/next-golang-chat-app/auth/src/gen/users"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/services"
 	"github.com/DiarCode/next-golang-chat-app/auth/src/utils"
 	"google.golang.org/grpc"
@@ -37,6 +38,7 @@ func main() {
 
 	server := grpc.NewServer()
 	authpb.RegisterAuthServiceServer(server, &services.AuthService{})
+	userspb.RegisterUserServiceServer(server, &services.UserService{})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.AppConfig.APP_PORT))
 	if err != nil {

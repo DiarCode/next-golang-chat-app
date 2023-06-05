@@ -1,4 +1,6 @@
+import { useUser } from "@/shared/hooks/useUser";
 import { ChatMessage as ChatMessageType } from "@/shared/types/chat/message.type";
+import { formatDateFromUnix } from "@/shared/utils/date-formatter";
 import React, { FC } from "react";
 
 export type MessageFromType = "me" | "sender";
@@ -32,21 +34,28 @@ const ChatMessageMe: FC<ChatMessageComponentProps> = ({ message }) => {
       <p className="text-white text-sm md:text-base">{message.content}</p>
 
       <div className="flex justify-end mt-1">
-        <p className="text-xs text-gray-300">12:45 pm</p>
+        <p className="text-xs text-gray-300">
+          {formatDateFromUnix(message.sendedAt)}
+        </p>
       </div>
     </div>
   );
 };
 
 const ChatMessageSender: FC<ChatMessageComponentProps> = ({ message }) => {
+  const { data } = useUser(message.userId);
   return (
     <div className="place-self-start bg-white rounded-lg p-2 px-3 w-fit mb-3">
-      <p className="text-xs md:text-sm text-primary">{message.userId}</p>
+      <p className="text-xs md:text-sm text-primary">
+        {data?.data.username ?? "Unknown"}
+      </p>
 
       <p className="text-black text-sm md:text-base">{message.content}</p>
 
       <div className="flex justify-end mt-1">
-        <p className="text-xs text-gray-500">12:45 pm</p>
+        <p className="text-xs text-gray-500">
+          {formatDateFromUnix(message.sendedAt)}
+        </p>
       </div>
     </div>
   );

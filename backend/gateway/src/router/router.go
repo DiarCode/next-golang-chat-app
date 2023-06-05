@@ -37,6 +37,7 @@ func NewRouter() *gin.Engine {
 	// Auth
 	api.POST("/auth/login", Controllers.Auth.Login)
 	api.POST("/auth/signup", Controllers.Auth.Signup)
+	api.GET("/users/:id", Controllers.Auth.GetUserById)
 
 	// Posts
 	api.POST("/posts", Controllers.Posts.CreatePost)
