@@ -25,7 +25,7 @@ export const BlogScreen = () => {
               <p>Write</p>
             </Button>
           </div>
-          <BlogsList blogs={data?.data || blogs} />
+          <BlogsList blogs={data?.data || []} />
         </div>
 
         <div className="hidden md:block border-l col-span-1 h-full pl-7">

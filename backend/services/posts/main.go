@@ -27,7 +27,7 @@ func main() {
 		APP_PORT:    50052,
 		JWT_KEY:     "SSH256KEY",
 		DB_USER:     "postgres",
-		DB_PASSWORD: "postgres",
+		DB_PASSWORD: "123",
 		DB_NAME:     "meowchat_posts",
 		DB_PORT:     "5432",
 		DB_HOST:     "localhost",

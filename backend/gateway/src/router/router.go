@@ -42,7 +42,7 @@ func NewRouter() *gin.Engine {
 	// Posts
 	api.POST("/posts", Controllers.Posts.CreatePost)
 	api.GET("/posts", Controllers.Posts.GetAllPosts)
-	api.GET("/posts/:id", Controllers.Posts.GetPost)
+	api.GET("/posts/:id", Controllers.Posts.GetPostById)
 
 	// Chat
 	api.GET("/chat/rooms/:id/ws", Controllers.Chat.ChatWebSocket)

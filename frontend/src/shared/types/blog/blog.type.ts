@@ -2,6 +2,6 @@ export interface Blog {
   id: number;
   title: string;
   body: string;
-  createdAt: Date;
+  createdAt: number;
   authorId: number;
 }

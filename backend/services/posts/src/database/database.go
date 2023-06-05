@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DiarCode/next-golang-chat-app/posts/src/config"
-	"github.com/DiarCode/next-golang-chat-app/posts/src/models"
+	postspb "github.com/DiarCode/next-golang-chat-app/posts/src/gen/posts"
 	"github.com/DiarCode/next-golang-chat-app/posts/src/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,7 +32,7 @@ func ConnectDB() {
 	utils.LoggerInfo("Running migrations")
 
 	err = DB.AutoMigrate(
-		&models.User{},
+		&postspb.Post{},
 	)
 
 	if err != nil {
