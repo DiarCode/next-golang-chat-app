@@ -15,7 +15,7 @@ message Post {
     string title = 2;
     string body = 3;
     int64 authorId = 4;
-    int64 createdAt = 5;  
+    int64 publishedAt = 5;  
 }
 
 message CreatePostRequest {

@@ -4,7 +4,7 @@
 // - protoc             v4.23.0
 // source: protos/posts/posts.proto
 
-package posts
+package postspb
 
 import (
 	context "context"
@@ -69,7 +69,6 @@ type PostsServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*Post, error)
 	GetPostById(context.Context, *GetPostByIdRequest) (*Post, error)
 	GetAllPosts(context.Context, *EmptyRequest) (*GetAllPostsResponse, error)
-	mustEmbedUnimplementedPostsServiceServer()
 }
 
 // UnimplementedPostsServiceServer must be embedded to have forward compatible implementations.
