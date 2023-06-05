@@ -7,6 +7,8 @@ interface BlogsListProps {
 }
 
 export const BlogsList: FC<BlogsListProps> = ({ blogs }) => {
+  console.log(blogs)
+
   const renderedBlogs = blogs.map((blog, index) => (
     <div key={blog.id}>
       {index > 0 && <hr />}

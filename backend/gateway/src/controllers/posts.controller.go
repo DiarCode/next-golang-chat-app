@@ -18,7 +18,7 @@ func (*PostsController) GetAllPosts(c *gin.Context) {
 		utils.SendJsonError(c, http.StatusInternalServerError, "Failed to get all posts", err)
 	}
 
-	utils.SendJson(c, http.StatusOK, resp)
+	utils.SendJson(c, http.StatusOK, resp.Posts)
 }
 
 func (*PostsController) GetPostById(c *gin.Context) {

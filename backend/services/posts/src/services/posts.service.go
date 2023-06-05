@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/DiarCode/next-golang-chat-app/posts/src/database"
 	postspb "github.com/DiarCode/next-golang-chat-app/posts/src/gen/posts"
@@ -11,9 +12,10 @@ type PostsService struct{}
 
 func (*PostsService) CreatePost(ctx context.Context, req *postspb.CreatePostRequest) (*postspb.Post, error) {
 	postspb := &postspb.Post{
-		Title:    req.Title,
-		Body:     req.Body,
-		AuthorId: req.AuthorId,
+		Title:     req.Title,
+		Body:      req.Body,
+		AuthorId:  req.AuthorId,
+		CreatedAt: time.Now().Unix(),
 	}
 
 	resultQuery := database.DB.Create(&postspb)
@@ -31,7 +33,7 @@ func (*PostsService) GetPostById(ctx context.Context, req *postspb.GetPostByIdRe
 	if resultQuery.Error != nil {
 		return nil, resultQuery.Error
 	}
-	
+
 	return post, nil
 }
 
@@ -44,8 +46,8 @@ func (*PostsService) GetAllPosts(context.Context, *postspb.EmptyRequest) (*posts
 	}
 
 	response := &postspb.GetAllPostsResponse{
-		Posts:  posts,
+		Posts: posts,
 	}
-	
+
 	return response, nil
 }
