@@ -1,0 +1,99 @@
+version: "3"
+services:
+  # Auth service
+  auth_service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "50051:50051"
+    depends_on:
+      - auth_db
+
+  auth_db:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_PORT: ${AUTH_DB_PORT}
+
+  # Chat service
+  chat_service:
+    build:
+      context: ./services/chat
+      dockerfile: Dockerfile
+    ports:
+      - "50053:50053"
+    depends_on:
+      - kafka_zookeeper
+      - kafka_broker
+      - chat_db
+
+  chat_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${CHATS_DB_USER}
+      POSTGRES_PASSWORD: ${CHATS_DB_PASSWORD}
+      POSTGRES_DB: ${CHATS_DB_NAME}
+      POSTGRES_PORT: ${CHATS_DB_PORT}
+
+  kafka_zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: kafka_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka_broker:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: kafka_broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - kafka_zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # Posts service
+  posts_service:
+    build:
+      context: ./services/posts
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    depends_on:
+      - posts_db
+
+  posts_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTS_DB_USER}
+      POSTGRES_PASSWORD: ${POSTS_DB_PASSWORD}
+      POSTGRES_DB: ${POSTS_DB_NAME}
+      POSTGRES_PORT: ${POSTS_DB_PORT}
+
+  # Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth_service
+      - posts_service
+      - chat_service
