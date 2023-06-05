@@ -43,10 +43,10 @@ export const AuthContextProvider: FC<PropsWithChildren<NextComponentAuth>> = ({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (Component.onlyUser && !isAuth) {
+    if (Component.onlyUser && !isAuth && !onMountLoading) {
       router.push(PAGES_LINKS.Signup.link).catch(err => setError(err));
     }
-  }, [Component.onlyUser, isAuth, router]);
+  }, [Component.onlyUser, isAuth, onMountLoading, router]);
 
   useEffect(() => {
     if (cookies.auth) {
