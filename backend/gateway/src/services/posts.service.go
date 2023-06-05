@@ -11,8 +11,8 @@ func GetAllPosts() (*postspb.GetAllPostsResponse, error) {
 	return resp, err
 }
 
-func GetPost(dto *postspb.GetPostRequest) (*postspb.Post, error) {
-	resp, err := Clients.Posts.GetPost(context.Background(), dto)
+func GetPostById(dto *postspb.GetPostByIdRequest) (*postspb.Post, error) {
+	resp, err := Clients.Posts.GetPostById(context.Background(), dto)
 	return resp, err
 }
 

@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	postspb "github.com/DiarCode/next-golang-chat-app/gateway/src/gen/posts"
-	models "github.com/DiarCode/next-golang-chat-app/gateway/src/models/posts"
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/services"
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/utils"
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,7 @@ func (*PostsController) GetAllPosts(c *gin.Context) {
 	utils.SendJson(c, http.StatusOK, resp)
 }
 
-func (*PostsController) GetPost(c *gin.Context) {
+func (*PostsController) GetPostById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 
@@ -31,7 +30,7 @@ func (*PostsController) GetPost(c *gin.Context) {
 		return
 	}
 
-	resp, err := services.GetPost(&postspb.GetPostRequest{Id: int64(id)})
+	resp, err := services.GetPostById(&postspb.GetPostByIdRequest{Id: int64(id)})
 	if err != nil {
 		utils.SendJsonError(c, http.StatusInternalServerError, "Failed to get post", err)
 	}
@@ -40,17 +39,13 @@ func (*PostsController) GetPost(c *gin.Context) {
 }
 
 func (*PostsController) CreatePost(c *gin.Context) {
-	var request models.CreatePostJson
+	var request postspb.CreatePostRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		utils.SendJsonError(c, http.StatusBadRequest, "Failed to parse json", err)
 	}
 
-	resp, err := services.CreatePost(&postspb.CreatePostRequest{
-		Title:    request.Title,
-		Body:     request.Body,
-		AuthorId: int64(request.AuthorId),
-	})
+	resp, err := services.CreatePost(&request)
 	if err != nil {
 		utils.SendJsonError(c, http.StatusInternalServerError, "Failed to create post", err)
 	}
