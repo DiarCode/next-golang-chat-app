@@ -1,6 +1,7 @@
 import { AuthState, LoginDto, SignupDto } from "@/shared/types/auth/auth.dto";
 import axios from "axios";
-import { ApiResponse, getApiUrl } from "../api";
+import { getApiUrl } from "../api";
+import { User } from "@/shared/types/user/user.type";
 
 export class AuthApiService {
   public static login(dto: LoginDto) {
@@ -15,5 +16,9 @@ export class AuthApiService {
       getApiUrl("auth/signup"),
       dto
     );
+  }
+
+  public static getUserById(id: number) {
+    return axios.get<User>(getApiUrl(`users/${id}`));
   }
 }

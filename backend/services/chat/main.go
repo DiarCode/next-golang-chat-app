@@ -9,7 +9,6 @@ import (
 	chatpb "github.com/DiarCode/next-golang-chat-app/chat/src/gen/chat"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/services"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/utils"
-	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 )
 
@@ -34,22 +33,14 @@ func main() {
 		DB_HOST:     "localhost",
 	}
 
-	config.QueueConfig = &config.RabbitmqConfigType{
-		AmqpURI:    "amqp://guest:guest@localhost:5672/",
-		Exchange:   "chat_exchange",
-		RoutingKey: "chat_message",
+	config.QueueConfig = &config.QueueConfigType{
+		KafkaURI: "localhost:9092",
 	}
-
-	conn, err := amqp.Dial(config.QueueConfig.AmqpURI)
-	if err != nil {
-		utils.LoggerFatalf("Failed to connect to RabbitMQ:", err)
-	}
-	defer conn.Close()
 
 	database.ConnectDB()
 
 	server := grpc.NewServer()
-	chatpb.RegisterChatServiceServer(server, services.NewChatServiceServer(conn))
+	chatpb.RegisterChatServiceServer(server, services.NewChatServiceServer())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.AppConfig.APP_PORT))
 	if err != nil {

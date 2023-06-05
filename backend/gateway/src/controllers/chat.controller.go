@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -40,8 +38,6 @@ var upgrader = websocket.Upgrader{
 // }
 
 func (*ChatController) ChatWebSocket(c *gin.Context) {
-	log.Println("EEEEEENTERRRR TO WEB")
-
 	id := c.Param("id")
 	if id == "" {
 		utils.SendJsonError(c, http.StatusBadRequest, "Empty query parametr id", errors.New("missing id"))
@@ -55,8 +51,6 @@ func (*ChatController) ChatWebSocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	// Start a goroutine to receive messages from the chat microservice and send them to the WebSocket connection
-
 	stream, err := services.JoinRoom(&chatpb.JoinRoomRequest{
 		Id: id,
 	})
@@ -66,14 +60,11 @@ func (*ChatController) ChatWebSocket(c *gin.Context) {
 	}
 
 	for {
-		fmt.Println("In Stream")
 		chatMsg, err := stream.Recv()
 		if err != nil {
 			utils.LoggerErrorf("Failed to receive message from chat microservice:", err)
 			return
 		}
-
-		fmt.Println("In Stream with message: ", chatMsg)
 
 		err = conn.WriteJSON(chatMsg)
 		if err != nil {

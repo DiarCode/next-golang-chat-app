@@ -33,7 +33,7 @@ export const ChatMessagesList = () => {
       scrollToBottom();
     }
   }, [renderedMessages.length]);
-
+  
   return (
     <div className="bg-slate-200 overflow-y-auto h-[55vh] md:h-[65vh] rounded-xl border-2 p-4 relative">
       <div className="flex flex-col">{renderedMessages}</div>

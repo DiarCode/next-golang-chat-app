@@ -4,7 +4,6 @@ package chatpb;
 
 option go_package = "./gen/chat";
 
-
 service ChatService {
     rpc GetAllRooms(Empty) returns (GetAllRoomsResponse);
     rpc GetRoomById(GetRoomByIdRequest) returns (Room);
@@ -48,6 +47,7 @@ message ChatMessage {
   int64 userId = 2;
   string content = 3;
   int64 id = 4;
+  int64 sendedAt = 5;
 }
 
 message SendMessageRequest {

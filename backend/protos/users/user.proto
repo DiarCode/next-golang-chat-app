@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "./gen/users";
+
+service UserService {
+    rpc GetUserById(GetUserByIdRequest) returns (User);
+}
+
+message User {
+    int64 id = 1;
+    string username = 2;
+    string email = 3;
+}
+
+message GetUserByIdRequest {
+    int64 id = 1;
+}

@@ -125,6 +125,7 @@ type ChatServiceServer interface {
 	CreateRoom(context.Context, *CreateRoomRequest) (*Room, error)
 	JoinRoom(*JoinRoomRequest, ChatService_JoinRoomServer) error
 	SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error)
+	mustEmbedUnimplementedChatServiceServer()
 }
 
 // UnimplementedChatServiceServer must be embedded to have forward compatible implementations.

@@ -4,20 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
+	"time"
 
+	"github.com/DiarCode/next-golang-chat-app/chat/src/config"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/database"
 	chatpb "github.com/DiarCode/next-golang-chat-app/chat/src/gen/chat"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/utils"
-	"github.com/streadway/amqp"
+	"github.com/segmentio/kafka-go"
 )
 
 type ChatService struct {
-	conn *amqp.Connection
 }
 
-func NewChatServiceServer(conn *amqp.Connection) *ChatService {
-	return &ChatService{conn: conn}
+func NewChatServiceServer() *ChatService {
+	return &ChatService{}
 }
 
 func (s *ChatService) GetMessagesByRoomId(ctx context.Context, req *chatpb.GetMessagesByRoomIdRequest) (*chatpb.GetMessagesByRoomIdResponse, error) {
@@ -76,92 +76,48 @@ func (s *ChatService) CreateRoom(ctx context.Context, req *chatpb.CreateRoomRequ
 }
 
 func (s *ChatService) JoinRoom(req *chatpb.JoinRoomRequest, stream chatpb.ChatService_JoinRoomServer) error {
-	roomID := req.Id
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{config.QueueConfig.KafkaURI},
+		Topic:   fmt.Sprintf("chat-%v", req.Id),
+	})
 
-	// Receive messages from RabbitMQ and send them to the client
-	ch, err := s.conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	queue, err := ch.QueueDeclare(
-		roomID, // Queue name is the room ID
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	msgs, err := ch.Consume(
-		queue.Name,
-		"",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	for msg := range msgs {
-		var chatMsg chatpb.ChatMessage
-		err := json.Unmarshal(msg.Body, &chatMsg)
+	for {
+		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			utils.LoggerInfof("Failed to unmarshal message:", err)
+			utils.Logger.Sugar().Errorf("Error reading message from Kafka:", err)
 			continue
 		}
 
-		fmt.Println("Sending message ", chatMsg)
-		err = stream.Send(&chatMsg)
+		var message chatpb.ChatMessage
+		err = json.Unmarshal(m.Value, &message)
 		if err != nil {
-			utils.LoggerInfof("Failed to send message to client:", err)
+			utils.LoggerErrorf("Failed to unmarshal message:", err)
+			continue
 		}
 
-		msg.Ack(true)
-	}
+		err = stream.Send(&message)
+		if err != nil {
+			utils.LoggerInfof("Failed to send message to client:", err)
+			continue
+		}
 
-	return nil
+		err = reader.CommitMessages(context.Background(), m)
+		if err != nil {
+			utils.LoggerErrorf("Error committing message offset:", err)
+			continue
+		}
+	}
 }
 
 func (s *ChatService) SendMessage(ctx context.Context, req *chatpb.SendMessageRequest) (*chatpb.SendMessageResponse, error) {
-	roomID := req.RoomId
-	userID := req.UserId
-	content := req.Content
-
-	// Publish the message to RabbitMQ
-	ch, err := s.conn.Channel()
-	if err != nil {
-		return nil, err
-	}
-	defer ch.Close()
-
-	queue, err := ch.QueueDeclare(
-		strconv.FormatInt(int64(roomID), 10),
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-
 	chatMsg := chatpb.ChatMessage{
-		RoomId:  roomID,
-		UserId:  userID,
-		Content: content,
+		RoomId:   req.RoomId,
+		UserId:   req.UserId,
+		Content:  req.Content,
+		SendedAt: time.Now().Unix(),
 	}
 
-	// Create message in db]
-	fmt.Println("RECCEEIEV MESSAGE", chatMsg)
+	// Create message in db
 	dbQueryResult := database.DB.Create(&chatMsg)
 	if dbQueryResult.Error != nil {
 		return nil, dbQueryResult.Error
@@ -172,16 +128,13 @@ func (s *ChatService) SendMessage(ctx context.Context, req *chatpb.SendMessageRe
 		return nil, err
 	}
 
-	err = ch.Publish(
-		"",         // Exchange
-		queue.Name, // Routing key is the queue name
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/octet-stream",
-			Body:        body,
-		},
-	)
+	producer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: []string{config.QueueConfig.KafkaURI},
+		Topic:   fmt.Sprintf("chat-%v", req.RoomId),
+	})
+	err = producer.WriteMessages(ctx, kafka.Message{
+		Value: body,
+	})
 	if err != nil {
 		return nil, err
 	}
