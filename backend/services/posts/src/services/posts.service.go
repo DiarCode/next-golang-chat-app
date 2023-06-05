@@ -12,10 +12,10 @@ type PostsService struct{}
 
 func (*PostsService) CreatePost(ctx context.Context, req *postspb.CreatePostRequest) (*postspb.Post, error) {
 	postspb := &postspb.Post{
-		Title:     req.Title,
-		Body:      req.Body,
-		AuthorId:  req.AuthorId,
-		CreatedAt: time.Now().Unix(),
+		Title:       req.Title,
+		Body:        req.Body,
+		AuthorId:    req.AuthorId,
+		PublishedAt: time.Now().Unix(),
 	}
 
 	resultQuery := database.DB.Create(&postspb)
@@ -40,7 +40,7 @@ func (*PostsService) GetPostById(ctx context.Context, req *postspb.GetPostByIdRe
 func (*PostsService) GetAllPosts(context.Context, *postspb.EmptyRequest) (*postspb.GetAllPostsResponse, error) {
 	var posts []*postspb.Post
 
-	resultQuery := database.DB.Find(&posts)
+	resultQuery := database.DB.Order("published_at DESC").Find(&posts)
 	if resultQuery.Error != nil {
 		return nil, resultQuery.Error
 	}
