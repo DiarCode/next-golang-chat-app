@@ -12,7 +12,7 @@ import { usePosts } from "@/shared/hooks/usePosts";
 
 export const BlogScreen = () => {
   const { setVisible } = useContext(CreatePostModalContext);
-  const { data } = usePosts();
+  const { posts } = usePosts();
 
   return (
     <AppLayout title="Blog">
@@ -25,7 +25,7 @@ export const BlogScreen = () => {
               <p>Write</p>
             </Button>
           </div>
-          <BlogsList blogs={data?.data || []} />
+          <BlogsList blogs={posts} />
         </div>
 
         <div className="hidden md:block border-l col-span-1 h-full pl-7">

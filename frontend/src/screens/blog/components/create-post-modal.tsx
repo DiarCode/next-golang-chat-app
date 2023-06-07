@@ -6,10 +6,12 @@ import { useForm } from "react-hook-form";
 import { CreatePostDto, CreatePostForm } from "@/shared/types/blog/blog.dto";
 import { PostsApiService } from "@/shared/api/posts/posts.api";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { usePosts } from "@/shared/hooks/usePosts";
 
 export const CreatePostModal = () => {
   const { auth } = useAuth();
-  const { register, handleSubmit } = useForm<CreatePostForm>();
+  const { addPost } = usePosts();
+  const { register, handleSubmit, reset } = useForm<CreatePostForm>();
 
   const { visible, setVisible } = useContext(CreatePostModalContext);
 
@@ -22,13 +24,16 @@ export const CreatePostModal = () => {
       ...data,
       authorId: auth?.id,
     };
-    
+
     const res = await PostsApiService.createPost(dto);
     if (res.status !== 200) {
-      console.log(res.data);
-      //TODO: implement state store
+      console.log(res);
+      setVisible(false);
+      return;
     }
 
+    reset();
+    addPost(res.data);
     setVisible(false);
   };
 
