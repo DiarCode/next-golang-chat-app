@@ -16,25 +16,18 @@ import (
 func main() {
 	utils.InitLogger()
 
-	config.Config = &config.AppConfig{
+	config.AppConfig = &config.AppConfigType{
 		APP_PORT:    os.Getenv("CHATS_APP_PORT"),
+		DB_HOST:     os.Getenv("CHATS_DB_HOST"),
 		DB_USER:     os.Getenv("CHATS_DB_USER"),
 		DB_PASSWORD: os.Getenv("CHATS_DB_PASSWORD"),
 		DB_NAME:     os.Getenv("CHATS_DB_NAME"),
 		DB_PORT:     os.Getenv("CHATS_DB_PORT"),
 	}
-	// config.AppConfig = &config.AppConfigType{
-	// 	APP_PORT:    50053,
-	// 	JWT_KEY:     "SSH256KEY",
-	// 	DB_USER:     "postgres",
-	// 	DB_PASSWORD: "postgres",
-	// 	DB_NAME:     "meowchat_chat",
-	// 	DB_PORT:     "5432",
-	// 	DB_HOST:     "localhost",
-	// }
 
+	kafkaHost := os.Getenv("CHATS_KAFKA_HOST")
 	config.QueueConfig = &config.QueueConfigType{
-		KafkaURI: "localhost:9092",
+		KafkaURI: fmt.Sprintf("%v:9092", kafkaHost),
 	}
 
 	database.ConnectDB()

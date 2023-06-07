@@ -17,9 +17,10 @@ import (
 func main() {
 	utils.InitLogger()
 
-	config.Config = &config.AppConfig{
+	config.AppConfig = &config.AppConfigType{
 		APP_PORT:    os.Getenv("AUTH_APP_PORT"),
 		JWT_KEY:     os.Getenv("AUTH_JWT_KEY"),
+		DB_HOST:     os.Getenv("AUTH_DB_HOST"),
 		DB_USER:     os.Getenv("AUTH_DB_USER"),
 		DB_PASSWORD: os.Getenv("AUTH_DB_PASSWORD"),
 		DB_NAME:     os.Getenv("AUTH_DB_NAME"),
