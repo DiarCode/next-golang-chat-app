@@ -1,17 +1,11 @@
-# Dockerfile for microservices
+# syntax=docker/dockerfile:1
 
-# Use the official Golang image as the base image
-FROM golang:1.19-alpine
+FROM golang:1.19.0
 
-# Set the working directory inside the container
+# Set destination for COPY
 WORKDIR /app
 
-# Copy the source code into the container
+RUN go install github.com/cosmtrek/air@latest
+
 COPY . .
-
-# Build the Go application
-RUN go build -o posts_build
-
-
-# Run the service when the container starts
-CMD ["/app/posts_build"]
+RUN go mod tidy

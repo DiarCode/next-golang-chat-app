@@ -27,7 +27,8 @@ export class ChatApiService {
   }
 
   public static getChatRoomWebSocketClient(id: number) {
-    const url = `ws://localhost:8080/api/v1/chat/rooms/${id}/ws`;
+    const gatewayHost = process.env.API_HOST ?? "localhost";
+    const url = `ws://${gatewayHost}:8080/api/v1/chat/rooms/${id}/ws`;
     const client = new WebSocket(url);
     return client;
   }
