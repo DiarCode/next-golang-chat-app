@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/controllers"
+	"github.com/DiarCode/next-golang-chat-app/gateway/src/middlewares"
 	"github.com/DiarCode/next-golang-chat-app/gateway/src/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -24,6 +25,7 @@ func NewRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middlewares.CORSMiddleware())
 
 	api := r.Group("/api/v1")
 
@@ -35,16 +37,20 @@ func NewRouter() *gin.Engine {
 	// Auth
 	api.POST("/auth/login", Controllers.Auth.Login)
 	api.POST("/auth/signup", Controllers.Auth.Signup)
+	api.GET("/users/:id", Controllers.Auth.GetUserById)
 
 	// Posts
 	api.POST("/posts", Controllers.Posts.CreatePost)
 	api.GET("/posts", Controllers.Posts.GetAllPosts)
-	api.GET("/posts/:id", Controllers.Posts.GetPost)
+	api.GET("/posts/:id", Controllers.Posts.GetPostById)
 
 	// Chat
-	api.GET("/chat/ws", Controllers.Chat.ChatWebSocket)
+	api.GET("/chat/rooms/:id/ws", Controllers.Chat.ChatWebSocket)
+	api.GET("/chat/rooms/:id", Controllers.Chat.GetRoomById)
+	api.POST("/chat/rooms/send", Controllers.Chat.SendMessage)
 	api.GET("/chat/rooms", Controllers.Chat.GetAllRooms)
 	api.POST("/chat/rooms", Controllers.Chat.CreateRoom)
+	api.GET("/chat/rooms/:id/messages", Controllers.Chat.GetAllMessagesByRoom)
 
 	return r
 }

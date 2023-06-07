@@ -39,3 +39,11 @@ func LoggerFatalf(msg string, args ...interface{}) {
 func LoggerFatal(msg string) {
 	Logger.Fatal(fmt.Sprintf("%v %v", loggerContext, msg))
 }
+
+func LoggerErrorf(msg string, args ...interface{}) {
+	Logger.Sugar().Errorf(fmt.Sprintf("%v %v", loggerContext, msg), args)
+}
+
+func LoggerError(msg string) {
+	Logger.Error(fmt.Sprintf("%v %v", loggerContext, msg))
+}

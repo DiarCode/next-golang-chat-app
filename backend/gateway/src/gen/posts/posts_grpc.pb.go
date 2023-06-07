@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PostsServiceClient interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*Post, error)
-	GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*Post, error)
+	GetPostById(ctx context.Context, in *GetPostByIdRequest, opts ...grpc.CallOption) (*Post, error)
 	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GetAllPostsResponse, error)
 }
 
@@ -44,9 +44,9 @@ func (c *postsServiceClient) CreatePost(ctx context.Context, in *CreatePostReque
 	return out, nil
 }
 
-func (c *postsServiceClient) GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*Post, error) {
+func (c *postsServiceClient) GetPostById(ctx context.Context, in *GetPostByIdRequest, opts ...grpc.CallOption) (*Post, error) {
 	out := new(Post)
-	err := c.cc.Invoke(ctx, "/posts.PostsService/GetPost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/posts.PostsService/GetPostById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +67,8 @@ func (c *postsServiceClient) GetAllPosts(ctx context.Context, in *EmptyRequest, 
 // for forward compatibility
 type PostsServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*Post, error)
-	GetPost(context.Context, *GetPostRequest) (*Post, error)
+	GetPostById(context.Context, *GetPostByIdRequest) (*Post, error)
 	GetAllPosts(context.Context, *EmptyRequest) (*GetAllPostsResponse, error)
-	mustEmbedUnimplementedPostsServiceServer()
 }
 
 // UnimplementedPostsServiceServer must be embedded to have forward compatible implementations.
@@ -79,8 +78,8 @@ type UnimplementedPostsServiceServer struct {
 func (UnimplementedPostsServiceServer) CreatePost(context.Context, *CreatePostRequest) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedPostsServiceServer) GetPost(context.Context, *GetPostRequest) (*Post, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPost not implemented")
+func (UnimplementedPostsServiceServer) GetPostById(context.Context, *GetPostByIdRequest) (*Post, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostById not implemented")
 }
 func (UnimplementedPostsServiceServer) GetAllPosts(context.Context, *EmptyRequest) (*GetAllPostsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
@@ -116,20 +115,20 @@ func _PostsService_CreatePost_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PostsService_GetPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPostRequest)
+func _PostsService_GetPostById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostByIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PostsServiceServer).GetPost(ctx, in)
+		return srv.(PostsServiceServer).GetPostById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/posts.PostsService/GetPost",
+		FullMethod: "/posts.PostsService/GetPostById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostsServiceServer).GetPost(ctx, req.(*GetPostRequest))
+		return srv.(PostsServiceServer).GetPostById(ctx, req.(*GetPostByIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -164,8 +163,8 @@ var PostsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PostsService_CreatePost_Handler,
 		},
 		{
-			MethodName: "GetPost",
-			Handler:    _PostsService_GetPost_Handler,
+			MethodName: "GetPostById",
+			Handler:    _PostsService_GetPostById_Handler,
 		},
 		{
 			MethodName: "GetAllPosts",

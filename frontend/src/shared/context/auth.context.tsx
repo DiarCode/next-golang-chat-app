@@ -43,10 +43,10 @@ export const AuthContextProvider: FC<PropsWithChildren<NextComponentAuth>> = ({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (Component.onlyUser && !isAuth) {
+    if (Component.onlyUser && !isAuth && !onMountLoading) {
       router.push(PAGES_LINKS.Signup.link).catch(err => setError(err));
     }
-  }, [Component.onlyUser, isAuth, router]);
+  }, [Component.onlyUser, isAuth, onMountLoading, router]);
 
   useEffect(() => {
     if (cookies.auth) {
@@ -81,6 +81,8 @@ export const AuthContextProvider: FC<PropsWithChildren<NextComponentAuth>> = ({
         setAuth(data);
         setIsAuth(true);
         setCookie("auth", data);
+
+        router.push(PAGES_LINKS.Home.link).catch(err => setError(err));
       } catch (error) {
         if (typeof error === "string") {
           setError(error);
@@ -88,27 +90,31 @@ export const AuthContextProvider: FC<PropsWithChildren<NextComponentAuth>> = ({
         }
       }
     },
-    [setCookie]
+    [router, setCookie]
   );
 
-  const signup = useCallback(async (dto: SignupDto) => {
-    try {
-      const { data, status } = await AuthApiService.signup(dto);
-      if (status !== 200) {
-        setError(data?.message ?? "Failed to login");
-        return;
-      }
+  const signup = useCallback(
+    async (dto: SignupDto) => {
+      try {
+        const { data, status } = await AuthApiService.signup(dto);
+        if (status !== 200) {
+          setError(data?.message ?? "Failed to login");
+          return;
+        }
 
-      setAuth(data);
-      setIsAuth(true);
-      setCookie("auth", data);
-    } catch (error) {
-      if (typeof error === "string") {
-        setError(error);
-        return;
+        setAuth(data);
+        setIsAuth(true);
+        setCookie("auth", data);
+        router.push(PAGES_LINKS.Home.link).catch(err => setError(err));
+      } catch (error) {
+        if (typeof error === "string") {
+          setError(error);
+          return;
+        }
       }
-    }
-  }, [setCookie]);
+    },
+    [router, setCookie]
+  );
 
   const value: AuthContextState = useMemo(() => {
     return {

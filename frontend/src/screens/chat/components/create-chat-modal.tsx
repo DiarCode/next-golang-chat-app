@@ -13,7 +13,13 @@ export const CreateChatModal = () => {
 
   const onCreateChatSubmit = async (data: CreateChatDto) => {
     console.log(data);
-    // const res = await ChatApiService.createChat(data);
+    const res = await ChatApiService.createChatRoom(data);
+    if (res.status !== 200) {
+      setVisible(false);
+      return;
+    }
+
+    setVisible(false);
   };
 
   return (

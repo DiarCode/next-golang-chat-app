@@ -1,5 +1,10 @@
 import { ChatExcerptScreen } from "@/screens/chat/screens/chat-excerpt.screen";
+import { NextPageAuth } from "@/shared/types/page/page.type";
 
-export default function ChatExcerptPage() {
+const ChatExcerptPage: NextPageAuth = () => {
   return <ChatExcerptScreen />;
-}
+};
+
+ChatExcerptPage.onlyUser = true;
+
+export default ChatExcerptPage;

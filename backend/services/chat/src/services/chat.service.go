@@ -3,131 +3,138 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"time"
 
+	"github.com/DiarCode/next-golang-chat-app/chat/src/config"
+	"github.com/DiarCode/next-golang-chat-app/chat/src/database"
 	chatpb "github.com/DiarCode/next-golang-chat-app/chat/src/gen/chat"
 	"github.com/DiarCode/next-golang-chat-app/chat/src/utils"
-	"github.com/streadway/amqp"
+	"github.com/segmentio/kafka-go"
 )
 
 type ChatService struct {
-	conn *amqp.Connection
 }
 
-func NewChatServiceServer(conn *amqp.Connection) *ChatService {
-	return &ChatService{conn: conn}
+func NewChatServiceServer() *ChatService {
+	return &ChatService{}
+}
+
+func (s *ChatService) GetMessagesByRoomId(ctx context.Context, req *chatpb.GetMessagesByRoomIdRequest) (*chatpb.GetMessagesByRoomIdResponse, error) {
+	var messages []*chatpb.ChatMessage
+
+	queryResult := database.DB.Where("room_id = ?", req.RoomId).Find(&messages)
+
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return &chatpb.GetMessagesByRoomIdResponse{
+		Messages: messages,
+	}, nil
 }
 
 func (s *ChatService) GetAllRooms(ctx context.Context, req *chatpb.Empty) (*chatpb.GetAllRoomsResponse, error) {
-	return nil, nil
+	var rooms []*chatpb.Room
+	res := database.DB.Find(&rooms)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	response := &chatpb.GetAllRoomsResponse{
+		Rooms: rooms,
+	}
+
+	return response, nil
+}
+
+func (s *ChatService) GetRoomById(ctx context.Context, req *chatpb.GetRoomByIdRequest) (*chatpb.Room, error) {
+	var room chatpb.Room
+
+	res := database.DB.First(&room, req.Id)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &room, nil
 }
 
 func (s *ChatService) CreateRoom(ctx context.Context, req *chatpb.CreateRoomRequest) (*chatpb.Room, error) {
-	// Logic to create a new chat room
-	// ...
+	room := chatpb.Room{
+		Name: req.Name,
+	}
 
-	roomID := 32
-	roomName := "Name"
+	result := database.DB.Create(&room)
 
-	return &chatpb.Room{Id: int64(roomID), Name: roomName}, nil
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &chatpb.Room{Id: room.Id, Name: room.Name}, nil
 }
 
 func (s *ChatService) JoinRoom(req *chatpb.JoinRoomRequest, stream chatpb.ChatService_JoinRoomServer) error {
-	roomID := req.Id
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{config.QueueConfig.KafkaURI},
+		Topic:   fmt.Sprintf("chat-%v", req.Id),
+	})
 
-	// Receive messages from RabbitMQ and send them to the client
-	ch, err := s.conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	queue, err := ch.QueueDeclare(
-		roomID, // Queue name is the room ID
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	msgs, err := ch.Consume(
-		queue.Name,
-		"",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	for msg := range msgs {
-		var chatMsg chatpb.ChatMessage
-		err := json.Unmarshal(msg.Body, &chatMsg)
+	for {
+		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			utils.LoggerInfof("Failed to unmarshal message:", err)
+			utils.Logger.Sugar().Errorf("Error reading message from Kafka:", err)
 			continue
 		}
 
-		err = stream.Send(&chatMsg)
+		var message chatpb.ChatMessage
+		err = json.Unmarshal(m.Value, &message)
+		if err != nil {
+			utils.LoggerErrorf("Failed to unmarshal message:", err)
+			continue
+		}
+
+		err = stream.Send(&message)
 		if err != nil {
 			utils.LoggerInfof("Failed to send message to client:", err)
+			continue
+		}
+
+		err = reader.CommitMessages(context.Background(), m)
+		if err != nil {
+			utils.LoggerErrorf("Error committing message offset:", err)
+			continue
 		}
 	}
-
-	return nil
 }
 
 func (s *ChatService) SendMessage(ctx context.Context, req *chatpb.SendMessageRequest) (*chatpb.SendMessageResponse, error) {
-	roomID := req.RoomId
-	userID := req.UserId
-	content := req.Content
-
-	// Publish the message to RabbitMQ
-	ch, err := s.conn.Channel()
-	if err != nil {
-		return nil, err
+	chatMsg := chatpb.ChatMessage{
+		RoomId:   req.RoomId,
+		UserId:   req.UserId,
+		Content:  req.Content,
+		SendedAt: time.Now().Unix(),
 	}
-	defer ch.Close()
 
-	queue, err := ch.QueueDeclare(
-		roomID, // Queue name is the room ID
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
+	// Create message in db
+	dbQueryResult := database.DB.Create(&chatMsg)
+	if dbQueryResult.Error != nil {
+		return nil, dbQueryResult.Error
+	}
+
+	body, err := json.Marshal(&chatMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	chatMsg := &chatpb.ChatMessage{
-		RoomId:  roomID,
-		UserId:  userID,
-		Content: content,
-	}
-
-	body, err := json.Marshal(chatMsg)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ch.Publish(
-		"",         // Exchange
-		queue.Name, // Routing key is the queue name
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/octet-stream",
-			Body:        body,
-		},
-	)
+	producer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: []string{config.QueueConfig.KafkaURI},
+		Topic:   fmt.Sprintf("chat-%v", req.RoomId),
+	})
+	err = producer.WriteMessages(ctx, kafka.Message{
+		Value: body,
+	})
 	if err != nil {
 		return nil, err
 	}

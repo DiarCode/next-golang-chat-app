@@ -1,9 +1,9 @@
 package config
 
-var QueueConfig *RabbitmqConfigType
+var QueueConfig *QueueConfigType
 
-type RabbitmqConfigType struct {
-	AmqpURI string
+type QueueConfigType struct {
+	KafkaURI string
 	Exchange string
 	RoutingKey string
 }

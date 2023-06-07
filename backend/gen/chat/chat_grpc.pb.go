@@ -4,7 +4,7 @@
 // - protoc             v4.23.0
 // source: protos/chat/chat.proto
 
-package chat
+package chatpb
 
 import (
 	context "context"
@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
 	GetAllRooms(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetAllRoomsResponse, error)
+	GetRoomById(ctx context.Context, in *GetRoomByIdRequest, opts ...grpc.CallOption) (*Room, error)
+	GetMessagesByRoomId(ctx context.Context, in *GetMessagesByRoomIdRequest, opts ...grpc.CallOption) (*GetMessagesByRoomIdResponse, error)
 	CreateRoom(ctx context.Context, in *CreateRoomRequest, opts ...grpc.CallOption) (*Room, error)
 	JoinRoom(ctx context.Context, in *JoinRoomRequest, opts ...grpc.CallOption) (ChatService_JoinRoomClient, error)
 	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error)
@@ -38,7 +40,25 @@ func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 
 func (c *chatServiceClient) GetAllRooms(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetAllRoomsResponse, error) {
 	out := new(GetAllRoomsResponse)
-	err := c.cc.Invoke(ctx, "/chat.ChatService/GetAllRooms", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/chatpb.ChatService/GetAllRooms", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) GetRoomById(ctx context.Context, in *GetRoomByIdRequest, opts ...grpc.CallOption) (*Room, error) {
+	out := new(Room)
+	err := c.cc.Invoke(ctx, "/chatpb.ChatService/GetRoomById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) GetMessagesByRoomId(ctx context.Context, in *GetMessagesByRoomIdRequest, opts ...grpc.CallOption) (*GetMessagesByRoomIdResponse, error) {
+	out := new(GetMessagesByRoomIdResponse)
+	err := c.cc.Invoke(ctx, "/chatpb.ChatService/GetMessagesByRoomId", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +67,7 @@ func (c *chatServiceClient) GetAllRooms(ctx context.Context, in *Empty, opts ...
 
 func (c *chatServiceClient) CreateRoom(ctx context.Context, in *CreateRoomRequest, opts ...grpc.CallOption) (*Room, error) {
 	out := new(Room)
-	err := c.cc.Invoke(ctx, "/chat.ChatService/CreateRoom", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/chatpb.ChatService/CreateRoom", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +75,7 @@ func (c *chatServiceClient) CreateRoom(ctx context.Context, in *CreateRoomReques
 }
 
 func (c *chatServiceClient) JoinRoom(ctx context.Context, in *JoinRoomRequest, opts ...grpc.CallOption) (ChatService_JoinRoomClient, error) {
-	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[0], "/chat.ChatService/JoinRoom", opts...)
+	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[0], "/chatpb.ChatService/JoinRoom", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +108,7 @@ func (x *chatServiceJoinRoomClient) Recv() (*ChatMessage, error) {
 
 func (c *chatServiceClient) SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error) {
 	out := new(SendMessageResponse)
-	err := c.cc.Invoke(ctx, "/chat.ChatService/SendMessage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/chatpb.ChatService/SendMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +120,8 @@ func (c *chatServiceClient) SendMessage(ctx context.Context, in *SendMessageRequ
 // for forward compatibility
 type ChatServiceServer interface {
 	GetAllRooms(context.Context, *Empty) (*GetAllRoomsResponse, error)
+	GetRoomById(context.Context, *GetRoomByIdRequest) (*Room, error)
+	GetMessagesByRoomId(context.Context, *GetMessagesByRoomIdRequest) (*GetMessagesByRoomIdResponse, error)
 	CreateRoom(context.Context, *CreateRoomRequest) (*Room, error)
 	JoinRoom(*JoinRoomRequest, ChatService_JoinRoomServer) error
 	SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error)
@@ -112,6 +134,12 @@ type UnimplementedChatServiceServer struct {
 
 func (UnimplementedChatServiceServer) GetAllRooms(context.Context, *Empty) (*GetAllRoomsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllRooms not implemented")
+}
+func (UnimplementedChatServiceServer) GetRoomById(context.Context, *GetRoomByIdRequest) (*Room, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoomById not implemented")
+}
+func (UnimplementedChatServiceServer) GetMessagesByRoomId(context.Context, *GetMessagesByRoomIdRequest) (*GetMessagesByRoomIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessagesByRoomId not implemented")
 }
 func (UnimplementedChatServiceServer) CreateRoom(context.Context, *CreateRoomRequest) (*Room, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRoom not implemented")
@@ -145,10 +173,46 @@ func _ChatService_GetAllRooms_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/chat.ChatService/GetAllRooms",
+		FullMethod: "/chatpb.ChatService/GetAllRooms",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).GetAllRooms(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_GetRoomById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRoomByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).GetRoomById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chatpb.ChatService/GetRoomById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).GetRoomById(ctx, req.(*GetRoomByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_GetMessagesByRoomId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessagesByRoomIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).GetMessagesByRoomId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chatpb.ChatService/GetMessagesByRoomId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).GetMessagesByRoomId(ctx, req.(*GetMessagesByRoomIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -163,7 +227,7 @@ func _ChatService_CreateRoom_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/chat.ChatService/CreateRoom",
+		FullMethod: "/chatpb.ChatService/CreateRoom",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).CreateRoom(ctx, req.(*CreateRoomRequest))
@@ -202,7 +266,7 @@ func _ChatService_SendMessage_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/chat.ChatService/SendMessage",
+		FullMethod: "/chatpb.ChatService/SendMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).SendMessage(ctx, req.(*SendMessageRequest))
@@ -214,12 +278,20 @@ func _ChatService_SendMessage_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ChatService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chat.ChatService",
+	ServiceName: "chatpb.ChatService",
 	HandlerType: (*ChatServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetAllRooms",
 			Handler:    _ChatService_GetAllRooms_Handler,
+		},
+		{
+			MethodName: "GetRoomById",
+			Handler:    _ChatService_GetRoomById_Handler,
+		},
+		{
+			MethodName: "GetMessagesByRoomId",
+			Handler:    _ChatService_GetMessagesByRoomId_Handler,
 		},
 		{
 			MethodName: "CreateRoom",

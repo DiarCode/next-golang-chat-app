@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/DiarCode/next-golang-chat-app/posts/src/config"
 	"github.com/DiarCode/next-golang-chat-app/posts/src/database"
@@ -15,14 +16,13 @@ import (
 func main() {
 	utils.InitLogger()
 
-	// config.Config = &config.AppConfig{
-	// 	APP_PORT:    50051,
-	// 	JWT_KEY:     os.Getenv("JWT_KEY"),
-	// 	DB_USER:     os.Getenv("DB_USER"),
-	// 	DB_PASSWORD: os.Getenv("DB_PASSWORD"),
-	// 	DB_NAME:     os.Getenv("DB_NAME"),
-	// 	DB_PORT:     os.Getenv("DB_PORT"),
-	// }
+	config.Config = &config.AppConfig{
+		APP_PORT:    os.Getenv("POSTS_APP_PORT"),
+		DB_USER:     os.Getenv("POSTS_DB_USER"),
+		DB_PASSWORD: os.Getenv("POSTS_DB_PASSWORD"),
+		DB_NAME:     os.Getenv("POSTS_DB_NAME"),
+		DB_PORT:     os.Getenv("POSTS_DB_PORT"),
+	}
 	config.AppConfig = &config.AppConfigType{
 		APP_PORT:    50052,
 		JWT_KEY:     "SSH256KEY",

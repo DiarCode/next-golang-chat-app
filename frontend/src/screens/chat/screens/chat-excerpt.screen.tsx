@@ -1,6 +1,6 @@
 import { AppLayout } from "@/shared/layouts/app-layout";
 import { PageTitle } from "@/shared/ui/title";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SidebarChatDetails } from "../components/sidebar-chat-details";
 import { Chat } from "../components/chat/chat";
 import { chats } from "@/shared/mocks/chats";
@@ -9,13 +9,16 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { PAGES_LINKS } from "@/shared/config/links.config";
 import { useChat } from "@/shared/hooks/useChat";
+import { ChatApiService } from "@/shared/api/chat/chat.api";
 
 export const ChatExcerptScreen = () => {
   const router = useRouter();
   const { id } = router.query;
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
-  const { data } = useChat(Number(id));
-  const chat = data?.data ?? chats[0];
+  const { chat: data } = useChat(Number(id));
+
+  const chat = data ?? chats[0];
 
   return (
     <AppLayout title={chat.name}>

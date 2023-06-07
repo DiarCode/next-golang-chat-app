@@ -22,3 +22,11 @@ func CreateRoom(dto *chatpb.CreateRoomRequest) (*chatpb.Room, error) {
 func GetAllRooms() (*chatpb.GetAllRoomsResponse, error) {
 	return Clients.Chat.GetAllRooms(context.Background(), &chatpb.Empty{})
 }
+
+func GetRoomById(dto *chatpb.GetRoomByIdRequest) (*chatpb.Room, error) {
+	return Clients.Chat.GetRoomById(context.Background(), dto)
+}
+
+func GetAllMessagesByRoom(dto *chatpb.GetMessagesByRoomIdRequest) (*chatpb.GetMessagesByRoomIdResponse, error) {
+	return Clients.Chat.GetMessagesByRoomId(context.Background(), dto)
+}
