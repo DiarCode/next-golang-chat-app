@@ -5,20 +5,24 @@ import { CreateChatModalContext } from "../context/create-chat-modal.context";
 import { useForm } from "react-hook-form";
 import { CreateChatDto } from "@/shared/types/chat/chat.dto";
 import { ChatApiService } from "@/shared/api/chat/chat.api";
+import { useChats } from "@/shared/hooks/useChat";
 
 export const CreateChatModal = () => {
-  const { register, handleSubmit } = useForm<CreateChatDto>();
-
+  const { register, handleSubmit, reset } = useForm<CreateChatDto>();
+  const { addChat } = useChats();
   const { visible, setVisible } = useContext(CreateChatModalContext);
 
   const onCreateChatSubmit = async (data: CreateChatDto) => {
     console.log(data);
     const res = await ChatApiService.createChatRoom(data);
     if (res.status !== 200) {
+      console.log(res);
       setVisible(false);
       return;
     }
 
+    reset();
+    addChat(res.data);
     setVisible(false);
   };
 

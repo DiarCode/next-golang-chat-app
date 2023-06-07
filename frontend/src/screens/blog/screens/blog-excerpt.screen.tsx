@@ -1,7 +1,6 @@
 import { usePost } from "@/shared/hooks/usePosts";
 import { useUser } from "@/shared/hooks/useUser";
 import { AppLayout } from "@/shared/layouts/app-layout";
-import { blogs } from "@/shared/mocks/blogs";
 import { formatDateFromUnix } from "@/shared/utils/date-formatter";
 import { useRouter } from "next/router";
 import React from "react";
