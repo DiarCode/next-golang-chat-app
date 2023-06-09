@@ -3,17 +3,38 @@ import { Modal } from "@/shared/ui/modal";
 import React, { useContext } from "react";
 import { CreatePostModalContext } from "../context/create-post-modal.context";
 import { useForm } from "react-hook-form";
-import { CreatePostDto } from "@/shared/types/blog/blog.dto";
+import { CreatePostDto, CreatePostForm } from "@/shared/types/blog/blog.dto";
 import { PostsApiService } from "@/shared/api/posts/posts.api";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { usePosts } from "@/shared/hooks/usePosts";
 
 export const CreatePostModal = () => {
-  const { register, handleSubmit } = useForm<CreatePostDto>();
+  const { auth } = useAuth();
+  const { addPost } = usePosts();
+  const { register, handleSubmit, reset } = useForm<CreatePostForm>();
 
   const { visible, setVisible } = useContext(CreatePostModalContext);
 
-  const onCreatePostSubmit = async (data: CreatePostDto) => {
-    console.log(data);
-    // const res = await PostsApiService.createPost(data);
+  const onCreatePostSubmit = async (data: CreatePostForm) => {
+    if (!auth) {
+      return;
+    }
+
+    const dto: CreatePostDto = {
+      ...data,
+      authorId: auth?.id,
+    };
+
+    const res = await PostsApiService.createPost(dto);
+    if (res.status !== 200) {
+      console.log(res);
+      setVisible(false);
+      return;
+    }
+
+    reset();
+    addPost(res.data);
+    setVisible(false);
   };
 
   return (

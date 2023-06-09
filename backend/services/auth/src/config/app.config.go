@@ -3,7 +3,7 @@ package config
 var AppConfig *AppConfigType
 
 type AppConfigType struct {
-	APP_PORT int
+	APP_PORT string
 
 	JWT_KEY string
 
