@@ -10,7 +10,7 @@ import { CreateChatModalContext } from "../context/create-chat-modal.context";
 import { useChats } from "@/shared/hooks/useChat";
 
 export const ChatScreen = () => {
-  const { data } = useChats();
+  const { chats } = useChats();
   const { setVisible } = useContext(CreateChatModalContext);
 
   return (
@@ -29,7 +29,7 @@ export const ChatScreen = () => {
       </div>
 
       <div className="mt-6">
-        <ChatsList chats={data?.data ?? []} />
+        <ChatsList chats={chats} />
       </div>
 
       <CreateChatModal />

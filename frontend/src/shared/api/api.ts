@@ -5,7 +5,8 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export const API_URL = process.env.API_URL ?? "http://localhost:8080/api/v1";
+export const API_HOST = process.env.API_HOST ?? "localhost";
+export const API_URL = `http://${API_HOST}:8080/api/v1`;
 
 export const getApiUrl = (path: string) => {
   return `${API_URL}/${path}`;

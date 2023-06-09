@@ -4,8 +4,9 @@ import { chats } from "@/shared/mocks/chats";
 import { useChats } from "@/shared/hooks/useChat";
 
 export const SidebarChatDetails = () => {
-  const { data } = useChats();
-  const renderedChats = data?.data.map(chat => (
+  const { chats } = useChats();
+  
+  const renderedChats = chats.map(chat => (
     <ChatItem key={chat.id} chat={chat} />
   ));
   

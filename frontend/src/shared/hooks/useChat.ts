@@ -1,13 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChatApiService } from "../api/chat/chat.api";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useLayoutEffect } from "react";
 import { ChatContext } from "@/screens/chat/context/chat.context";
 import { ChatMessage } from "../types/chat/message.type";
 import { useAuth } from "./useAuth";
 import { SendMessageDto } from "../types/chat/message.dto";
+import { useChatsStore } from "../store/useChatsStore";
 
-export const useChats = () =>
-  useQuery({ queryKey: ["chats"], queryFn: ChatApiService.getAllChatRooms });
+export const useChats = () => {
+  const { chats, addChat, initChats } = useChatsStore();
+  const { data } = useQuery({
+    queryKey: ["chats"],
+    queryFn: ChatApiService.getAllChatRooms,
+  });
+
+  useLayoutEffect(() => {
+    initChats(data?.data ?? []);
+  }, [data?.data, initChats]);
+
+  return { chats, addChat };
+};
 
 export const useChat = (id?: number) => {
   const { auth } = useAuth();
