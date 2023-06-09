@@ -61,7 +61,14 @@ func (*AuthService) Signup(ctx context.Context, req *authpb.SignupRequest) (*aut
 	query := models.User{Email: req.Email}
 	err = database.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
-		return nil, status.Error(codes.InvalidArgument, "User already exists")
+		return nil, status.Error(codes.InvalidArgument, "User already with such email already exists")
+	}
+
+	found = models.User{}
+	query = models.User{Username: req.Username}
+	err = database.DB.First(&found, &query).Error
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Error(codes.InvalidArgument, "User already with such username already exists")
 	}
 
 	err = database.DB.Create(&user).Error
