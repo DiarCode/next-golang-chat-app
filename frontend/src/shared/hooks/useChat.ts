@@ -23,30 +23,41 @@ export const useChats = () => {
 
 export const useChat = (id?: number) => {
   const { auth } = useAuth();
-  const chatContext = useContext(ChatContext);
+  const {
+    messages,
+    setMessages,
+    socket,
+    setSocket,
+    chat,
+    setChat,
+    pushMessage,
+  } = useContext(ChatContext);
 
   const roomResponse = useQuery({
     queryKey: ["rooms", id],
     queryFn: () => ChatApiService.getChatRoomById(id!),
-    enabled: !chatContext.chat && Boolean(id),
+    enabled: Boolean(id),
   });
 
   const messagesResponse = useQuery({
     queryKey: ["messages", id],
     queryFn: () => ChatApiService.getMessagesByRoomId(id!),
-    enabled: !chatContext.chat && Boolean(id),
+    enabled: Boolean(id),
   });
 
   useEffect(() => {
-    chatContext.setChat(roomResponse.data?.data ?? null);
-    chatContext.setMessages(messagesResponse.data?.data ?? []);
+    setChat(roomResponse.data?.data ?? null);
+    setMessages(messagesResponse.data?.data ?? []);
 
-    return () => chatContext.setChat(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      setMessages([]);
+      setChat(null);
+    };
   }, [
-    chatContext.chat,
     messagesResponse.data?.data,
     roomResponse.data?.data,
+    setChat,
+    setMessages,
   ]);
 
   useEffect(() => {
@@ -58,46 +69,38 @@ export const useChat = (id?: number) => {
 
     client.onopen = () => {
       console.log("WebSocket Connected!");
-      chatContext.setSocket(client);
+      setSocket(client);
     };
 
     client.onmessage = message => {
       const newMessageStr = message?.data ?? null;
       if (!newMessageStr) return;
       const newMessageObj = JSON.parse(newMessageStr) as ChatMessage;
-      chatContext.pushMessage(newMessageObj);
+      pushMessage(newMessageObj);
     };
 
     client.onclose = () => {
       console.log("WebSocket Closed");
-      chatContext.setSocket(null);
+      setSocket(null);
     };
 
     return () => {
       if (client) {
         client.close();
-        chatContext.setMessages([]);
-        chatContext.setChat(null);
-        chatContext.setSocket(null);
+        setSocket(null);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, pushMessage, setSocket]);
 
   const sendMessage = async (msg: string) => {
-    if (
-      !chatContext.chat ||
-      !auth ||
-      !chatContext.socket ||
-      chatContext.socket.readyState !== chatContext.socket.OPEN
-    ) {
+    if (!chat || !auth || !socket || socket.readyState !== socket.OPEN) {
       return;
     }
 
     const chatMessage: SendMessageDto = {
       content: msg,
       userId: auth.id,
-      roomId: chatContext.chat.id,
+      roomId: chat.id,
     };
 
     const res = await ChatApiService.sendMessage(chatMessage);
@@ -106,5 +109,5 @@ export const useChat = (id?: number) => {
     }
   };
 
-  return { ...chatContext, sendMessage };
+  return { messages, chat, socket, sendMessage };
 };

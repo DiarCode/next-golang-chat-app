@@ -6,6 +6,7 @@ import {
   PropsWithChildren,
   SetStateAction,
   createContext,
+  useCallback,
   useMemo,
   useState,
 } from "react";
@@ -31,9 +32,10 @@ export const ChatContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
-  const pushMessage = (message: ChatMessage) => {
+  const pushMessage = useCallback((message: ChatMessage) => {
+    if(messages.find(msg => msg.id === message.id)) return
     setMessages(prev => [...prev, message]);
-  };
+  }, [messages]);
 
   const memoValue: ChatContextState = useMemo(
     () => ({
@@ -45,7 +47,7 @@ export const ChatContextProvider: FC<PropsWithChildren> = ({ children }) => {
       pushMessage,
       setMessages,
     }),
-    [chat, messages, socket]
+    [chat, messages, pushMessage, socket]
   );
 
   return (

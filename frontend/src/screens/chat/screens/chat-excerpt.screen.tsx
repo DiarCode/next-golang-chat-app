@@ -9,19 +9,17 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { PAGES_LINKS } from "@/shared/config/links.config";
 import { useChat } from "@/shared/hooks/useChat";
-import { ChatApiService } from "@/shared/api/chat/chat.api";
 
 export const ChatExcerptScreen = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   const { chat: data } = useChat(Number(id));
 
-  const chat = data ?? chats[0];
+  const chat = data;
 
   return (
-    <AppLayout title={chat.name}>
+    <AppLayout title={chat?.name ?? "Unknown"}>
       <main className="grid grid-cols-3">
         <div className="col-span-3 md:col-span-2 h-full md:pr-7">
           <Link href={PAGES_LINKS.Chat.link}>
@@ -31,7 +29,7 @@ export const ChatExcerptScreen = () => {
             </button>
           </Link>
 
-          <PageTitle content={chat.name} />
+          <PageTitle content={chat?.name ?? "Unknown"} />
 
           <div className="mt-4">
             <Chat />
