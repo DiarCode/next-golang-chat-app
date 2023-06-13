@@ -38,13 +38,16 @@ export const useChat = (id?: number) => {
   });
 
   useEffect(() => {
-    console.log("Messages:", messagesResponse.data?.data);
-    if (!chatContext.chat) {
-      chatContext.setChat(roomResponse.data?.data ?? null);
-      chatContext.setMessages(messagesResponse.data?.data ?? []);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatContext.chat, messagesResponse.data?.data, roomResponse.data?.data]);
+    chatContext.setChat(roomResponse.data?.data ?? null);
+    chatContext.setMessages(messagesResponse.data?.data ?? []);
+
+    return () => chatContext.setChat(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    chatContext.chat,
+    messagesResponse.data?.data,
+    roomResponse.data?.data,
+  ]);
 
   useEffect(() => {
     if (!id) {
@@ -54,18 +57,19 @@ export const useChat = (id?: number) => {
     const client = ChatApiService.getChatRoomWebSocketClient(id);
 
     client.onopen = () => {
-      console.log("WebSocket connection established");
+      console.log("WebSocket Connected!");
       chatContext.setSocket(client);
     };
 
     client.onmessage = message => {
-      const newMessageStr = message.data;
+      const newMessageStr = message?.data ?? null;
+      if (!newMessageStr) return;
       const newMessageObj = JSON.parse(newMessageStr) as ChatMessage;
       chatContext.pushMessage(newMessageObj);
     };
 
     client.onclose = () => {
-      console.log("WebSocket connection closed");
+      console.log("WebSocket Closed");
       chatContext.setSocket(null);
     };
 
@@ -77,7 +81,7 @@ export const useChat = (id?: number) => {
         chatContext.setSocket(null);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const sendMessage = async (msg: string) => {
