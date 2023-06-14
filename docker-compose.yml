@@ -1,7 +1,10 @@
 version: "3"
+
 services:
   # Frontend Web
-  frontend_client:
+  frontend-client:
+    deploy:
+      replicas: 1
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -9,15 +12,17 @@ services:
       - .env
     environment:
       API_HOST: ${API_HOST}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
     ports:
       - "3000:3000"
     depends_on:
       - gateway
 
   # Auth service
-  auth_service:
+  auth-service:
+    deploy:
+      replicas: 1
     build:
       context: ./backend/services/auth
       dockerfile: Dockerfile
@@ -32,19 +37,20 @@ services:
       AUTH_DB_NAME: ${AUTH_DB_NAME}
       AUTH_DB_PORT: ${AUTH_DB_PORT}
     command: air ./main.go -b 0.0.0.0
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
     ports:
       - "50051:50051"
     depends_on:
-      - auth_db
+      - auth-db
     links:
-      - auth_db
+      - auth-db
 
-  auth_db:
+  auth-db:
     image: postgres
     restart: always
-    container_name: auth_db
+    deploy:
+      replicas: 1
     volumes:
       - app_data:/var/lib/postgresql/auth/data
     env_file:
@@ -53,11 +59,13 @@ services:
       POSTGRES_USER: ${AUTH_DB_USER}
       POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
       POSTGRES_DB: ${AUTH_DB_NAME}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
   # Chat service
-  chat_service:
+  chat-service:
+    deploy:
+      replicas: 1
     build:
       context: ./backend/services/chat
       dockerfile: Dockerfile
@@ -71,62 +79,63 @@ services:
       CHATS_DB_NAME: ${CHATS_DB_NAME}
       CHATS_DB_PORT: ${CHATS_DB_PORT}
       CHATS_KAFKA_HOST: ${CHATS_KAFKA_HOST}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
     ports:
       - "50053:50053"
     command: air ./main.go -b 0.0.0.0
     depends_on:
-      - kafka_zookeeper
-      - kafka_broker
-      - chat_db
+      - kafka-zookeeper
+      - kafka-broker
+      - chat-db
     links:
-      - kafka_zookeeper
-      - kafka_broker
-      - chat_db
+      - kafka-zookeeper
+      - kafka-broker
+      - chat-db
 
-  chat_db:
+  chat-db:
     image: postgres
+    deploy:
+      replicas: 1
     restart: always
-    container_name: chat_db
     volumes:
       - app_data:/var/lib/postgresql/chat/data
     environment:
       POSTGRES_USER: ${CHATS_DB_USER}
       POSTGRES_PASSWORD: ${CHATS_DB_PASSWORD}
       POSTGRES_DB: ${CHATS_DB_NAME}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
-  kafka_zookeeper:
+  kafka-zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
-    container_name: kafka_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
-  kafka_broker:
+  kafka-broker:
     image: confluentinc/cp-kafka:7.3.2
-    container_name: kafka_broker
     ports:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "kafka_zookeeper:2181"
+      KAFKA_ZOOKEEPER_CONNECT: "kafka-zookeeper:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_broker:9092,PLAINTEXT_INTERNAL://kafka_broker:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092,PLAINTEXT_INTERNAL://kafka-broker:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
   # Posts service
-  posts_service:
+  posts-service:
+    deploy:
+      replicas: 1
     build:
       context: ./backend/services/posts
       dockerfile: Dockerfile
@@ -139,179 +148,50 @@ services:
       POSTS_DB_PASSWORD: ${POSTS_DB_PASSWORD}
       POSTS_DB_NAME: ${POSTS_DB_NAME}
       POSTS_DB_PORT: ${POSTS_DB_PORT}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
     ports:
       - "50052:50052"
     command: air ./main.go -b 0.0.0.0
     depends_on:
-      - posts_db
+      - posts-db
     links:
-      - posts_db
+      - posts-db
 
-  posts_db:
+  posts-db:
     image: postgres
+    deploy:
+      replicas: 1
     restart: always
-    container_name: posts_db
     volumes:
       - app_data:/var/lib/postgresql/posts/data
     environment:
       POSTGRES_USER: ${POSTS_DB_USER}
       POSTGRES_PASSWORD: ${POSTS_DB_PASSWORD}
       POSTGRES_DB: ${POSTS_DB_NAME}
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
   # Gateway
   gateway:
+    deploy:
+      replicas: 1
     build:
       context: ./backend/gateway
       dockerfile: Dockerfile
-    container_name: gateway
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
     ports:
       - "8080:8080"
     command: air ./main.go -b 0.0.0.0
     depends_on:
-      - auth_service
-      - posts_service
-      - chat_service
+      - auth-service
+      - posts-service
+      - chat-service
 
-networks:
-  app_network:
-    driver: bridge
+# networks:
+#   app_network:
+#     driver: overlay
 
 volumes:
   app_data:
-# version: "3"
-# services:
-#   # Frontend Web
-#   frontend_client:
-#     build:
-#       context: ./frontend
-#       dockerfile: Dockerfile
-#     env_file:
-#       - .env
-#     ports:
-#       - "3000:3000"
-#     depends_on:
-#       - gateway
-#     links:
-#       - gateway
-
-#   # Auth service
-#   auth_service:
-#     build:
-#       context: ./backend/services/auth
-#       dockerfile: Dockerfile
-#     env_file:
-#       - .env
-#     command: air ./main.go -b 0.0.0.0
-#     ports:
-#       - "50051:50051"
-#     depends_on:
-#       - auth_db
-#     links:
-#       - auth_db
-
-#   auth_db:
-#     image: postgres
-#     restart: always
-#     env_file:
-#       - .env
-#     environment:
-#       POSTGRES_USER: ${AUTH_DB_USER}
-#       POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
-#       POSTGRES_DB: ${AUTH_DB_NAME}
-#       POSTGRES_PORT: ${AUTH_DB_PORT}
-
-#   # Chat service
-#   chat_service:
-#     build:
-#       context: ./backend/services/chat
-#       dockerfile: Dockerfile
-#     ports:
-#       - "50053:50053"
-#     command: air ./main.go -b 0.0.0.0
-#     depends_on:
-#       - kafka_zookeeper
-#       - kafka_broker
-#       - chat_db
-#     links:
-#       - kafka_zookeeper
-#       - kafka_broker
-#       - chat_db
-
-#   chat_db:
-#     image: postgres
-#     restart: always
-#     environment:
-#       POSTGRES_USER: ${CHATS_DB_USER}
-#       POSTGRES_PASSWORD: ${CHATS_DB_PASSWORD}
-#       POSTGRES_DB: ${CHATS_DB_NAME}
-#       POSTGRES_PORT: ${CHATS_DB_PORT}
-
-#   kafka_zookeeper:
-#     image: confluentinc/cp-zookeeper:7.3.2
-#     container_name: kafka_zookeeper
-#     environment:
-#       ZOOKEEPER_CLIENT_PORT: 2181
-#       ZOOKEEPER_TICK_TIME: 2000
-#     ports:
-#       - 22181:2181
-
-#   kafka_broker:
-#     image: confluentinc/cp-kafka:7.3.2
-#     container_name: kafka_broker
-#     ports:
-#       - "9092:9092"
-#     depends_on:
-#       - kafka_zookeeper
-#     environment:
-#       KAFKA_BROKER_ID: 1
-#       KAFKA_ZOOKEEPER_CONNECT: "kafka_zookeeper:2181"
-#       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-#       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka_broker:29092
-#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-#       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-
-#   # Posts service
-#   posts_service:
-#     build:
-#       context: ./backend/services/posts
-#       dockerfile: Dockerfile
-#     ports:
-#       - "50052:50052"
-#     command: air ./main.go -b 0.0.0.0
-#     depends_on:
-#       - posts_db
-#     links:
-#       - posts_db
-
-#   posts_db:
-#     image: postgres
-#     restart: always
-#     environment:
-#       POSTGRES_USER: ${POSTS_DB_USER}
-#       POSTGRES_PASSWORD: ${POSTS_DB_PASSWORD}
-#       POSTGRES_DB: ${POSTS_DB_NAME}
-#       POSTGRES_PORT: ${POSTS_DB_PORT}
-
-#   # Gateway
-#   gateway:
-#     build:
-#       context: ./backend/gateway
-#       dockerfile: Dockerfile
-#     ports:
-#       - "8080:8080"
-#     command: air ./main.go -b 0.0.0.0
-#     depends_on:
-#       - auth_service
-#       - posts_service
-#       - chat_service
-#     links:
-#       - auth_service
-#       - posts_service
-#       - chat_service

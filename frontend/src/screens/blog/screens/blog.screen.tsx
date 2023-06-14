@@ -1,5 +1,5 @@
 import { AppLayout } from "@/shared/layouts/app-layout";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { BlogsList } from "../components/blog-list";
 import { blogs } from "@/shared/mocks/blogs";
 import { SidebarBlog } from "../components/sidebar-blog/sidebar-blog";

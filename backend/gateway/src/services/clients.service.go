@@ -44,7 +44,7 @@ func InitServiceClients() *ClientsType {
 }
 
 func getAuthClient() authpb.AuthServiceClient {
-	uri := fmt.Sprintf("auth_service:%v", authPort)
+	uri := fmt.Sprintf("auth-service:%v", authPort)
 	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.LoggerFatalf("Failed to connect to Auth client: %v", err)
@@ -54,7 +54,7 @@ func getAuthClient() authpb.AuthServiceClient {
 }
 
 func getUsersClient() userspb.UserServiceClient {
-	uri := fmt.Sprintf("auth_service:%v", authPort)
+	uri := fmt.Sprintf("auth-service:%v", authPort)
 	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.LoggerFatalf("Failed to connect to Auth client: %v", err)
@@ -64,7 +64,7 @@ func getUsersClient() userspb.UserServiceClient {
 }
 
 func getPostsClient() postspb.PostsServiceClient {
-	uri := fmt.Sprintf("posts_service:%v", postsPort)
+	uri := fmt.Sprintf("posts-service:%v", postsPort)
 	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.LoggerFatalf("Failed to connect to Posts client: %v", err)
@@ -74,7 +74,7 @@ func getPostsClient() postspb.PostsServiceClient {
 }
 
 func getChatClient() chatpb.ChatServiceClient {
-	uri := fmt.Sprintf("chat_service:%v", chatPort)
+	uri := fmt.Sprintf("chat-service:%v", chatPort)
 	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.LoggerFatalf("Failed to connect to Posts client: %v", err)

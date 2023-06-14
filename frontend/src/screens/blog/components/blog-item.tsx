@@ -9,9 +9,13 @@ interface BlogItemProps {
   blog: Blog;
 }
 
+const MAX_DESCRIPTION_SIZE = 400;
+
 export const BlogItem: FC<BlogItemProps> = ({ blog }) => {
   const blogLink = PAGES_LINKS.Blog.subs.BlogExcerpt.link(blog.id);
   const { data: author } = useUser(blog.authorId);
+
+  const slicedDescription = blog.body.slice(0, MAX_DESCRIPTION_SIZE);
 
   return (
     <div>
@@ -25,7 +29,9 @@ export const BlogItem: FC<BlogItemProps> = ({ blog }) => {
           </h2>
         </Link>
 
-        <p className="mt-2 text-xs md:text-sm text-gray-500">{blog.body}</p>
+        <p className="mt-2 text-xs md:text-sm text-gray-500">
+          {slicedDescription}...
+        </p>
       </div>
 
       <div className="flex items-center gap-x-3 mt-6">
